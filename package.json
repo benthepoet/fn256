@@ -1,0 +1,30 @@
+{
+  "name": "fn256",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/benthepoet/fn256.git"
+  },
+  "author": "Ben Hanna <benpaulhanna@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "bugs": {
+    "url": "https://gitlab.com/benthepoet/fn256/issues"
+  },
+  "homepage": "https://gitlab.com/benthepoet/fn256#README",
+  "dependencies": {
+    "css-loader": "^0.28.11",
+    "elm": "^0.18.0",
+    "elm-webpack-loader": "^4.5.0",
+    "style-loader": "^0.21.0",
+    "webpack": "^4.15.1",
+    "webpack-cli": "^3.0.8"
+  },
+  "devDependencies": {
+    "webpack-dev-server": "^3.1.4"
+  }
+}
