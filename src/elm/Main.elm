@@ -87,8 +87,7 @@ view model =
                                     [ Html.text "Log in to your account" ]
                                 , Html.form
                                     []
-                                    [ Html.div 
-                                        [ Attributes.class "field" ]
+                                    [ Elements.field
                                         [ Html.p
                                             [ Attributes.class "control has-icons-left " ]
                                             [ Elements.email []
@@ -100,8 +99,7 @@ view model =
                                                 ]
                                             ]
                                         ]
-                                    , Html.div 
-                                        [ Attributes.class "field" ]
+                                    , Elements.field
                                         [ Html.p
                                             [ Attributes.class "control has-icons-left" ]
                                             [ Elements.password []
@@ -113,8 +111,7 @@ view model =
                                                 ]
                                             ]
                                         ]
-                                    , Html.div 
-                                        [ Attributes.class "field" ]
+                                    , Elements.field
                                         [ Html.button 
                                             [ Attributes.class "button is-link full-width"
                                             , Attributes.type_ "button"

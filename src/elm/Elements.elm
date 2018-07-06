@@ -10,6 +10,11 @@ column =
         [ Attributes.class "column" ]
 
 
+field =
+    Html.div 
+        [ Attributes.class "field" ]
+
+
 email = 
     Html.input
         [ Attributes.class "input" 
