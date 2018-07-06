@@ -10,6 +10,14 @@ column =
         [ Attributes.class "column" ]
 
 
+confirmPassword =
+    Html.input
+        [ Attributes.class "input" 
+        , Attributes.type_ "password"
+        , Attributes.placeholder "Confirm Password"
+        ]
+
+
 field =
     Html.div 
         [ Attributes.class "field" ]

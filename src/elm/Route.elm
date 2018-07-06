@@ -10,6 +10,7 @@ type ProtectedRoute
 type PublicRoute
     = LogIn
     | NotFound
+    | ResetPassword
     | SignUp
 
 
@@ -29,6 +30,9 @@ toPath route =
         Public NotFound ->
             "#/notfound"
 
+        Public ResetPassword ->
+            "#/resetpassword"
+
         Public SignUp ->
             "#/signup"
 
@@ -44,5 +48,6 @@ route =
     oneOf
         [ map (Protected Home) (s "")
         , map (Public LogIn) (s "login")
+        , map (Public ResetPassword) (s "resetpassword")
         , map (Public SignUp) (s "signup")
         ]
