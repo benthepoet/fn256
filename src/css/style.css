@@ -1,0 +1,15 @@
+html {
+  font-size: 14px;
+}
+
+body {
+  background-color: #eee;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
