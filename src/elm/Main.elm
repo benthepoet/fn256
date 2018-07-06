@@ -1,6 +1,5 @@
 module Main exposing (..)
 
-import Elements
 import Html
 import Html.Attributes as Attributes
 import Html.Events as Events
@@ -20,7 +19,8 @@ type alias Model =
 
 
 type Msg 
-    = RouteChange Route.Route
+    = LoginMsg Page.LogIn.Msg
+    | RouteChange Route.Route
     | SetToken String
 
 
@@ -57,6 +57,9 @@ subscriptions model =
 
 update msg model =
     case msg of
+        LoginMsg msg ->
+            ( model, Cmd.none )
+    
         RouteChange route ->
             case route of
                 Route.Protected page ->
@@ -100,13 +103,13 @@ update msg model =
 
 view model =
     let
-        elements =
+        pageView =
             case model.page of
                 Blank ->
-                    []
+                    Html.div [] []
             
                 Home ->
-                    [ Elements.column [] ]
+                    Html.div [] []
                     
                 LogIn ->
                     Page.LogIn.view
@@ -120,6 +123,4 @@ view model =
                 SignUp ->
                     Page.SignUp.view
     in
-        Html.div 
-            [ Attributes.class "columns" ] 
-            elements
+        Html.div [] [ pageView ]

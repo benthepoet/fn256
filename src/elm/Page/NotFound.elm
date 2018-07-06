@@ -7,6 +7,8 @@ import Html.Attributes as Attributes
 
 
 view =
-    [ Elements.column
-        [ Html.text "The page could not be found." ]
-    ]
+    Html.div
+        [ Attributes.class "columns" ]
+        [ Elements.column
+            [ Html.text "The page could not be found." ]
+        ]
