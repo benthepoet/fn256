@@ -50,13 +50,8 @@ view =
                         [ Elements.field
                             [ Html.p
                                 [ Attributes.class "control has-icons-left " ]
-                                [ Html.input
-                                    [ Attributes.class "input" 
-                                    , Attributes.type_ "email"
-                                    , Attributes.placeholder "Email"
-                                    , Events.onInput TypeEmail
-                                    ]
-                                    []
+                                [ Elements.email
+                                    [ Events.onInput TypeEmail ]
                                 , Html.span
                                     [ Attributes.class "icon is-small is-left" ]
                                     [ Html.i 
@@ -68,13 +63,8 @@ view =
                         , Elements.field
                             [ Html.p
                                 [ Attributes.class "control has-icons-left" ]
-                                [ Html.input
-                                    [ Attributes.class "input" 
-                                    , Attributes.type_ "password"
-                                    , Attributes.placeholder "Password"
-                                    , Events.onInput TypePassword
-                                    ]
-                                    []
+                                [ Elements.password
+                                    [ Events.onInput TypePassword ]
                                 , Html.span
                                     [ Attributes.class "icon is-small is-left" ]
                                     [ Html.i 

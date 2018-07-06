@@ -10,12 +10,15 @@ column =
         [ Attributes.class "column" ]
 
 
-confirmPassword =
+confirmPassword attributes =
     Html.input
-        [ Attributes.class "input" 
-        , Attributes.type_ "password"
-        , Attributes.placeholder "Confirm Password"
-        ]
+        ( attributes ++
+            [ Attributes.class "input" 
+            , Attributes.type_ "password"
+            , Attributes.placeholder "Confirm Password"
+            ]
+        )
+        []
 
 
 field =
@@ -23,17 +26,23 @@ field =
         [ Attributes.class "field" ]
 
 
-email = 
-    Html.input
-        [ Attributes.class "input" 
-        , Attributes.type_ "email"
-        , Attributes.placeholder "Email"
-        ]
+email attributes = 
+    Html.input 
+        ( attributes ++
+            [ Attributes.class "input" 
+            , Attributes.type_ "email"
+            , Attributes.placeholder "Email"
+            ]
+        )
+        []
 
 
-password =
+password attributes =
     Html.input
-        [ Attributes.class "input" 
-        , Attributes.type_ "password"
-        , Attributes.placeholder "Password"
-        ]
+        ( attributes ++
+            [ Attributes.class "input" 
+            , Attributes.type_ "password"
+            , Attributes.placeholder "Password"
+            ]
+        )
+        []

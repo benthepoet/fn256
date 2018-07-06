@@ -1,10 +1,31 @@
 module Page.ResetPassword exposing (..)
 
 
+import Debug
 import Elements
 import Html
 import Html.Attributes as Attributes
+import Html.Events as Events
 import Route
+
+
+type alias Model =
+    { email : String
+    }
+
+
+type Msg
+    = TypeEmail String
+
+
+init = 
+    Model ""
+
+
+update msg model =
+    case msg of
+        TypeEmail email ->
+            { model | email = Debug.log "email" email }
 
 
 view = 
@@ -25,7 +46,8 @@ view =
                         [ Elements.field
                             [ Html.p
                                 [ Attributes.class "control has-icons-left " ]
-                                [ Elements.email []
+                                [ Elements.email 
+                                    [ Events.onInput TypeEmail ]
                                 , Html.span
                                     [ Attributes.class "icon is-small is-left" ]
                                     [ Html.i 

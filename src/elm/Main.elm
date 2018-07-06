@@ -20,6 +20,7 @@ type alias Model =
 
 type Msg 
     = LoginMsg Page.LogIn.Model Page.LogIn.Msg
+    | ResetPasswordMsg Page.ResetPassword.Model Page.ResetPassword.Msg
     | RouteChange Route.Route
     | SetToken String
 
@@ -29,7 +30,7 @@ type Page
     | Home
     | LogIn Page.LogIn.Model
     | NotFound
-    | ResetPassword
+    | ResetPassword Page.ResetPassword.Model
     | SignUp
 
 
@@ -61,6 +62,11 @@ update msg model =
             ( { model | page = LogIn <| Page.LogIn.update subMsg subModel }
             , Cmd.none
             )
+            
+        ResetPasswordMsg subModel subMsg ->
+            ( { model | page = ResetPassword <| Page.ResetPassword.update subMsg subModel }
+            , Cmd.none
+            )
     
         RouteChange route ->
             case route of
@@ -89,7 +95,7 @@ update msg model =
                             )
                             
                         Route.ResetPassword ->
-                            ( { model | page = ResetPassword }
+                            ( { model | page = ResetPassword Page.ResetPassword.init }
                             , Cmd.none
                             )
                             
@@ -120,8 +126,9 @@ view model =
                 NotFound ->
                     Page.NotFound.view
                     
-                ResetPassword ->
+                ResetPassword subModel ->
                     Page.ResetPassword.view
+                        |> Html.map (ResetPasswordMsg subModel)
                     
                 SignUp ->
                     Page.SignUp.view
