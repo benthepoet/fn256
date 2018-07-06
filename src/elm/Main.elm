@@ -60,9 +60,14 @@ subscriptions model =
 update msg model =
     case msg of
         LoginMsg subModel subMsg ->
-            ( { model | page = LogIn <| Page.LogIn.update subMsg subModel }
-            , Cmd.none
-            )
+            let
+                ( pageModel, cmd ) = Page.LogIn.update subMsg subModel
+            in
+                ( { model 
+                    | page = LogIn pageModel
+                    , token = pageModel.token }
+                , Cmd.map (LoginMsg pageModel) cmd
+                )
             
         ResetPasswordMsg subModel subMsg ->
             ( { model | page = ResetPassword <| Page.ResetPassword.update subMsg subModel }

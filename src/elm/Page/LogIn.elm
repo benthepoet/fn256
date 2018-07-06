@@ -1,35 +1,56 @@
 module Page.LogIn exposing (..)
 
 
+import Debug
 import Elements
 import Html
 import Html.Attributes as Attributes
 import Html.Events as Events
+import Http
+import Request
 import Route
 
 
 type alias Model =
     { email : String
     , password : String
+    , token : Maybe String
     }
 
 
 type Msg
-    = TypeEmail String
+    = LoginResponse (Result Http.Error Request.LoginToken)
+    | Submit
+    | TypeEmail String
     | TypePassword String
 
 
 init = 
-    Model "" ""
+    Model "" "" Nothing
 
 
 update msg model =
     case msg of
+        LoginResponse (Err _) ->
+            ( model, Cmd.none )
+            
+        LoginResponse (Ok login) ->
+            ( { model | token = Just <| Debug.log "token" login.token }
+            , Cmd.none 
+            )
+    
         TypeEmail email ->
-            { model | email = email }
+            ( { model | email = email }
+            , Cmd.none
+            )
             
         TypePassword password ->
-            { model | password = password }
+            ( { model | password = password }
+            , Cmd.none
+            )
+            
+        Submit ->
+            ( model, Http.send LoginResponse <| Request.login model.email model.password )
 
 
 view = 
@@ -77,6 +98,7 @@ view =
                             [ Html.button 
                                 [ Attributes.class "button is-link full-width"
                                 , Attributes.type_ "button"
+                                , Events.onClick Submit
                                 ]
                                 [ Html.text "Log In" ]  
                             ]
