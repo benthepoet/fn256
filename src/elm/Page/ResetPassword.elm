@@ -66,11 +66,11 @@ view =
                         , Html.div
                             [ Attributes.class "content has-text-centered mt-1" ]
                             [ Html.a 
-                                [ Attributes.href <| Route.toPath <| Route.Public Route.LogIn ] 
+                                [ Route.href <| Route.Public Route.LogIn ] 
                                 [ Html.text "Log In" ]
                             , Html.text " or "
                             , Html.a 
-                                [ Attributes.href <| Route.toPath <| Route.Public Route.SignUp ] 
+                                [ Route.href <| Route.Public Route.SignUp ] 
                                 [ Html.text "Sign Up" ]
                             ]
                         ]

@@ -1,5 +1,7 @@
 module Route exposing (..)
 
+
+import Html.Attributes as Attributes
 import UrlParser exposing ((</>), int, map, oneOf, parseHash, s)
 
 
@@ -35,6 +37,10 @@ toPath route =
 
         Public SignUp ->
             "#/signup"
+
+
+href route =
+    Attributes.href <| toPath route
 
 
 parse location =

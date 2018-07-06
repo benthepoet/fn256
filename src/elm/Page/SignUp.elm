@@ -4,7 +4,37 @@ module Page.SignUp exposing (..)
 import Elements
 import Html
 import Html.Attributes as Attributes
+import Html.Events as Events
 import Route
+
+
+type alias Model =
+    { confirmPassword: String
+    , email : String
+    , password : String
+    }
+
+
+type Msg
+    = TypeConfirmPassword String
+    | TypeEmail String
+    | TypePassword String
+
+
+init = 
+    Model "" "" ""
+
+
+update msg model =
+    case msg of
+        TypeConfirmPassword confirmPassword ->
+            { model | confirmPassword = confirmPassword }
+
+        TypeEmail email ->
+            { model | email = email }
+
+        TypePassword password ->
+            { model | password = password }
 
 
 view = 
@@ -25,7 +55,8 @@ view =
                         [ Elements.field
                             [ Html.p
                                 [ Attributes.class "control has-icons-left " ]
-                                [ Elements.email []
+                                [ Elements.email 
+                                    [ Events.onInput TypeEmail ]
                                 , Html.span
                                     [ Attributes.class "icon is-small is-left" ]
                                     [ Html.i 
@@ -37,7 +68,8 @@ view =
                         , Elements.field
                             [ Html.p
                                 [ Attributes.class "control has-icons-left" ]
-                                [ Elements.password []
+                                [ Elements.password 
+                                    [ Events.onInput TypePassword ]
                                 , Html.span
                                     [ Attributes.class "icon is-small is-left" ]
                                     [ Html.i 
@@ -49,7 +81,8 @@ view =
                         , Elements.field
                             [ Html.p
                                 [ Attributes.class "control has-icons-left" ]
-                                [ Elements.confirmPassword []
+                                [ Elements.confirmPassword 
+                                    [ Events.onInput TypeConfirmPassword ]
                                 , Html.span
                                     [ Attributes.class "icon is-small is-left" ]
                                     [ Html.i 
@@ -69,7 +102,7 @@ view =
                             [ Attributes.class "content has-text-centered mt-1" ]
                             [ Html.text "Already have an account? "
                             , Html.a 
-                                [ Attributes.href <| Route.toPath <| Route.Public Route.LogIn ] 
+                                [ Route.href <| Route.Public Route.LogIn ] 
                                 [ Html.text "Log In" ]
                             ]
                         ]
@@ -78,7 +111,7 @@ view =
             , Html.div
                 [ Attributes.class "has-text-centered content mt-1" ]
                 [ Html.a 
-                    [ Attributes.href <| Route.toPath <| Route.Public Route.ResetPassword ]
+                    [ Route.href <| Route.Public Route.ResetPassword ]
                     [ Html.text "Forgot your password?" ]
                 ]
             ]

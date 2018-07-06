@@ -23,6 +23,7 @@ type Msg
     | ResetPasswordMsg Page.ResetPassword.Model Page.ResetPassword.Msg
     | RouteChange Route.Route
     | SetToken String
+    | SignUpMsg Page.SignUp.Model Page.SignUp.Msg
 
 
 type Page
@@ -31,7 +32,7 @@ type Page
     | LogIn Page.LogIn.Model
     | NotFound
     | ResetPassword Page.ResetPassword.Model
-    | SignUp
+    | SignUp Page.SignUp.Model
 
 
 main =
@@ -100,12 +101,17 @@ update msg model =
                             )
                             
                         Route.SignUp ->
-                            ( { model | page = SignUp }
+                            ( { model | page = SignUp Page.SignUp.init }
                             , Cmd.none
                             )
                             
         SetToken token ->
             ( { model | token = Just token }
+            , Cmd.none
+            )
+            
+        SignUpMsg subModel subMsg ->
+            ( { model | page = SignUp <| Page.SignUp.update subMsg subModel }
             , Cmd.none
             )
 
@@ -130,7 +136,8 @@ view model =
                     Page.ResetPassword.view
                         |> Html.map (ResetPasswordMsg subModel)
                     
-                SignUp ->
+                SignUp subModel ->
                     Page.SignUp.view
+                        |> Html.map (SignUpMsg subModel)
     in
         Html.div [] [ pageView ]

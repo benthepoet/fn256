@@ -84,7 +84,7 @@ view =
                             [ Attributes.class "content has-text-centered mt-1" ]
                             [ Html.text "Don't have an account? "
                             , Html.a 
-                                [ Attributes.href <| Route.toPath <| Route.Public Route.SignUp ] 
+                                [ Route.href <| Route.Public Route.SignUp ] 
                                 [ Html.text "Sign Up" ]
                             ]
                         ]
@@ -93,7 +93,7 @@ view =
             , Html.div
                 [ Attributes.class "has-text-centered content mt-1" ]
                 [ Html.a 
-                    [ Attributes.href <| Route.toPath <| Route.Public Route.ResetPassword ]
+                    [ Route.href <| Route.Public Route.ResetPassword ]
                     [ Html.text "Forgot your password?" ]
                 ]
             ]
