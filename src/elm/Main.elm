@@ -1,26 +1,36 @@
 import Html
+import Navigation
+import Route
+import Task
 
 
 type alias Model =
-    { token : Maybe String
+    { route : Route.Route
+    , token : Maybe String
     }
 
 
-type Msg = 
-    Login String
+type Msg 
+    = LogIn String
+    | RouteChange Route.Route
 
 
 main =
-    Html.program
+    Navigation.program (Route.parse >> RouteChange)
         { init = init
-        , subscriptions = subscriptions
         , update = update
+        , subscriptions = subscriptions
         , view = view
         }
 
         
-init =
-    (Model Nothing, Cmd.none)
+init location =
+    let
+        route = Route.parse location
+    in
+        ( Model route Nothing
+        , Task.perform RouteChange <| Task.succeed route
+        )
 
 
 subscriptions model =
@@ -29,8 +39,27 @@ subscriptions model =
 
 update msg model =
     case msg of
-        Login token ->
-            (Model <| Just token, Cmd.none)
+        LogIn token ->
+            ( { model | token = Just token }
+            , Cmd.none
+            )
+            
+        RouteChange route ->
+            case route of
+                Route.Protected page ->
+                    case model.token of
+                        Nothing ->
+                            ( model, Navigation.modifyUrl (Route.toPath <| Route.Public Route.LogIn) )
+
+                        Just token ->
+                            ( { model | route = route }
+                            , Cmd.none
+                            )
+
+                Route.Public page ->
+                    ( { model | route = route }
+                    , Cmd.none
+                    )
 
 
 view model =
