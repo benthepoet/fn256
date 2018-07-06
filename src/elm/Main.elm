@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Elements
 import Html
 import Html.Attributes as Attributes
 import Html.Events as Events
@@ -71,89 +72,79 @@ view model =
         elements =
             case model.route of
                 Route.Protected Route.Home ->
-                    [ Html.div [] [] ]
+                    [ Elements.column [] ]
                     
                 Route.Public Route.LogIn ->
-                    [ Html.div 
-                        [ Attributes.class "col-3" ] 
-                        []
+                    [ Elements.column []
                     , Html.div
-                        [ Attributes.class "col-3" ]
+                        [ Attributes.class "column is-narrow" ]
                         [ Html.div
-                            [ Attributes.class "card m-20 p-20" ]
-                            [ Html.h2
-                                [ Attributes.class "text-center" ]
-                                [ Html.small [] [ Html.text "Log in to your account"]
-                                ]
-                            , Html.form
-                                []
-                                [ Html.div 
-                                    [ Attributes.class "form-group" ]
-                                    [ Html.label 
-                                        [ Attributes.class "form-label" ]
-                                        [ Html.text "Email" ]
+                            [ Attributes.class "card login mt-4" ]
+                            [ Html.div
+                                [ Attributes.class "card-content" ]
+                                [ Html.h2
+                                    [ Attributes.class "subtitle is-4 has-text-centered" ]
+                                    [ Html.text "Log in to your account" ]
+                                , Html.form
+                                    []
+                                    [ Html.div 
+                                        [ Attributes.class "field" ]
+                                        [ Html.p
+                                            [ Attributes.class "control has-icons-left " ]
+                                            [ Elements.email []
+                                            , Html.span
+                                                [ Attributes.class "icon is-small is-left" ]
+                                                [ Html.i 
+                                                    [ Attributes.class "fas fa-envelope" ]
+                                                    []
+                                                ]
+                                            ]
+                                        ]
+                                    , Html.div 
+                                        [ Attributes.class "field" ]
+                                        [ Html.p
+                                            [ Attributes.class "control has-icons-left" ]
+                                            [ Elements.password []
+                                            , Html.span
+                                                [ Attributes.class "icon is-small is-left" ]
+                                                [ Html.i 
+                                                    [ Attributes.class "fas fa-lock" ]
+                                                    []
+                                                ]
+                                            ]
+                                        ]
+                                    , Html.div 
+                                        [ Attributes.class "field" ]
+                                        [ Html.button 
+                                            [ Attributes.class "button is-link full-width"
+                                            , Attributes.type_ "button"
+                                            ]
+                                            [ Html.text "Log In" ]  
+                                        ]
                                     , Html.div
-                                        [ Attributes.class "input-group" ]
-                                        [ Html.span
-                                            [ Attributes.class "input-addon" ] 
-                                            [ Html.i
-                                                [ Attributes.class "petalicon petalicon-user" ]
-                                                []
-                                            ]
-                                        , Html.input
-                                            [ Attributes.class "input"
-                                            , Attributes.type_ "email"
-                                            ]
-                                            []
+                                        [ Attributes.class "content has-text-centered mt-1" ]
+                                        [ Html.text "Don't have an account? "
+                                        , Html.a [] [ Html.text "Sign Up" ]
                                         ]
-                                    ]
-                                , Html.div 
-                                    [ Attributes.class "form-group" ]
-                                    [ Html.label 
-                                        [ Attributes.class "form-label" ]
-                                        [ Html.text "Password" ]
-                                    , Html.div
-                                        [ Attributes.class "input-group" ]
-                                        [ Html.span
-                                            [ Attributes.class "input-addon" ] 
-                                            [ Html.i
-                                                [ Attributes.class "petalicon petalicon-lock-locked" ]
-                                                []
-                                            ]
-                                        , Html.input
-                                            [ Attributes.class "input"
-                                            , Attributes.type_ "password"
-                                            ]
-                                            []
-                                        ]
-                                    ]
-                                , Html.div 
-                                    [ Attributes.class "form-group" ]
-                                    [ Html.button 
-                                        [ Attributes.class "btn full-width"
-                                        , Attributes.type_ "button"
-                                        ]
-                                        [ Html.text "Log In" ]  
-                                    ]
-                                , Html.div
-                                    [ Attributes.class "form-group text-center" ]
-                                    [ Html.text "Don't have an account? "
-                                    , Html.a [] [ Html.text "Sign Up" ]
                                     ]
                                 ]
                             ]
+                        , Html.div
+                            [ Attributes.class "has-text-centered content mt-1" ]
+                            [ Html.a 
+                                []
+                                [ Html.text "Forgot your password?" ]
+                            ]
                         ]
-                    , Html.div
-                        [ Attributes.class "col-3" ]
-                        []
+                    , Elements.column []
                     ]
                     
                 Route.Public Route.NotFound ->
-                    [ Html.div [] [ Html.text "Not Found" ] ]
+                    [ Elements.column [ Html.text "Not Found" ] ]
                     
                 Route.Public Route.SignUp ->
-                    [ Html.div [] [] ]
+                    [ Elements.column [] ]
     in
         Html.div 
-            [ Attributes.class "row" ] 
+            [ Attributes.class "columns" ] 
             elements

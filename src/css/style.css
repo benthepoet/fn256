@@ -1,15 +1,19 @@
-html {
-  font-size: 14px;
+html, body {
+  background-color: #eee;
 }
 
-body {
-  background-color: #eee;
+.card.login {
+  width: 400px;
 }
 
 .full-width {
   width: 100%;
 }
 
-.text-center {
-  text-align: center;
+.mt-1 {
+  margin-top: 1rem;
+}
+
+.mt-4 {
+  margin-top: 4rem;
 }
