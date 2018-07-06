@@ -19,7 +19,7 @@ type alias Model =
 
 
 type Msg 
-    = LoginMsg Page.LogIn.Msg
+    = LoginMsg Page.LogIn.Model Page.LogIn.Msg
     | RouteChange Route.Route
     | SetToken String
 
@@ -27,7 +27,7 @@ type Msg
 type Page
     = Blank
     | Home
-    | LogIn
+    | LogIn Page.LogIn.Model
     | NotFound
     | ResetPassword
     | SignUp
@@ -57,8 +57,10 @@ subscriptions model =
 
 update msg model =
     case msg of
-        LoginMsg msg ->
-            ( model, Cmd.none )
+        LoginMsg subModel subMsg ->
+            ( { model | page = LogIn <| Page.LogIn.update subMsg subModel }
+            , Cmd.none
+            )
     
         RouteChange route ->
             case route of
@@ -77,7 +79,7 @@ update msg model =
                 Route.Public page ->
                     case page of
                         Route.LogIn ->
-                            ( { model | page = LogIn }
+                            ( { model | page = LogIn Page.LogIn.init }
                             , Cmd.none
                             )
                             
@@ -111,8 +113,9 @@ view model =
                 Home ->
                     Html.div [] []
                     
-                LogIn ->
+                LogIn subModel ->
                     Page.LogIn.view
+                        |> Html.map (LoginMsg subModel)  
                     
                 NotFound ->
                     Page.NotFound.view

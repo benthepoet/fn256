@@ -4,12 +4,32 @@ module Page.LogIn exposing (..)
 import Elements
 import Html
 import Html.Attributes as Attributes
+import Html.Events as Events
 import Route
 
 
+type alias Model =
+    { email : String
+    , password : String
+    }
+
+
 type Msg
-    = TypeEmail
-    | TypePassword
+    = TypeEmail String
+    | TypePassword String
+
+
+init = 
+    Model "" ""
+
+
+update msg model =
+    case msg of
+        TypeEmail email ->
+            { model | email = email }
+            
+        TypePassword password ->
+            { model | password = password }
 
 
 view = 
@@ -30,7 +50,13 @@ view =
                         [ Elements.field
                             [ Html.p
                                 [ Attributes.class "control has-icons-left " ]
-                                [ Elements.email []
+                                [ Html.input
+                                    [ Attributes.class "input" 
+                                    , Attributes.type_ "email"
+                                    , Attributes.placeholder "Email"
+                                    , Events.onInput TypeEmail
+                                    ]
+                                    []
                                 , Html.span
                                     [ Attributes.class "icon is-small is-left" ]
                                     [ Html.i 
@@ -42,7 +68,13 @@ view =
                         , Elements.field
                             [ Html.p
                                 [ Attributes.class "control has-icons-left" ]
-                                [ Elements.password []
+                                [ Html.input
+                                    [ Attributes.class "input" 
+                                    , Attributes.type_ "password"
+                                    , Attributes.placeholder "Password"
+                                    , Events.onInput TypePassword
+                                    ]
+                                    []
                                 , Html.span
                                     [ Attributes.class "icon is-small is-left" ]
                                     [ Html.i 
