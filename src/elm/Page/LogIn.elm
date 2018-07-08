@@ -14,7 +14,6 @@ import Route
 type alias Model =
     { email : String
     , password : String
-    , token : Maybe String
     }
 
 
@@ -25,32 +24,43 @@ type Msg
     | TypePassword String
 
 
+type OutMsg
+    = NoOp
+    | SetToken String
+    
+
 init = 
-    Model "" "" Nothing
+    Model "" ""
 
 
 update msg model =
     case msg of
         LoginResponse (Err _) ->
-            ( model, Cmd.none )
+            ( model, Cmd.none, NoOp )
             
-        LoginResponse (Ok login) ->
-            ( { model | token = Just <| Debug.log "token" login.token }
+        LoginResponse (Ok { token }) ->
+            ( model
             , Cmd.none 
+            , SetToken token
             )
-    
+
         TypeEmail email ->
             ( { model | email = email }
             , Cmd.none
+            , NoOp
             )
-            
+
         TypePassword password ->
             ( { model | password = password }
             , Cmd.none
+            , NoOp
             )
-            
+
         Submit ->
-            ( model, Http.send LoginResponse <| Request.login model.email model.password )
+            ( model
+            , Http.send LoginResponse <| Request.login model.email model.password 
+            , NoOp
+            )
 
 
 view = 

@@ -61,12 +61,22 @@ update msg model =
     case msg of
         LoginMsg subModel subMsg ->
             let
-                ( pageModel, cmd ) = Page.LogIn.update subMsg subModel
+                ( pageModel, subCmd, outCmd ) = Page.LogIn.update subMsg subModel
+                ( newModel, cmd ) = 
+                    case outCmd of
+                        Page.LogIn.NoOp ->
+                            ( model, Cmd.none )
+
+                        Page.LogIn.SetToken token ->
+                            ( { model | token = Just token }
+                            , Navigation.modifyUrl <| Route.toPath <| Route.Protected Route.Home
+                            )
             in
-                ( { model 
-                    | page = LogIn pageModel
-                    , token = pageModel.token }
-                , Cmd.map (LoginMsg pageModel) cmd
+                ( { newModel | page = LogIn pageModel }
+                , Cmd.batch 
+                    [ Cmd.map (LoginMsg pageModel) subCmd
+                    , cmd
+                    ]
                 )
             
         ResetPasswordMsg subModel subMsg ->
@@ -79,7 +89,7 @@ update msg model =
                 Route.Protected page ->
                     case model.token of
                         Nothing ->
-                            ( model, Navigation.modifyUrl (Route.toPath <| Route.Public Route.LogIn) )
+                            ( model, Navigation.modifyUrl <| Route.toPath <| Route.Public Route.LogIn )
 
                         Just token ->
                             case page of
