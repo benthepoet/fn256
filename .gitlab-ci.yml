@@ -1,0 +1,11 @@
+image: node:latest
+
+app:
+  cache:
+    paths:
+      - node_modules/
+  
+  stage: build
+  script:
+    - npm install
+    - npm run build
