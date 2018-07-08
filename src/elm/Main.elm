@@ -3,6 +3,7 @@ module Main exposing (..)
 import Html
 import Html.Attributes as Attributes
 import Html.Events as Events
+import Interop
 import Navigation
 import Page.LogIn
 import Page.NotFound
@@ -10,6 +11,11 @@ import Page.ResetPassword
 import Page.SignUp
 import Route
 import Task
+
+
+type alias Flags =
+    { token : Maybe String
+    }
 
 
 type alias Model =
@@ -36,19 +42,20 @@ type Page
 
 
 main =
-    Navigation.program (Route.parse >> RouteChange)
+    Navigation.programWithFlags (Route.parse >> RouteChange)
         { init = init
         , update = update
         , subscriptions = subscriptions
         , view = view
         }
 
-        
-init location =
+
+init : Flags -> Navigation.Location -> (Model, Cmd Msg)
+init { token } location =
     let
         route = Route.parse location
     in
-        ( Model Blank Nothing
+        ( Model Blank token
         , Task.perform RouteChange <| Task.succeed route
         )
 
@@ -69,7 +76,10 @@ update msg model =
 
                         Page.LogIn.SetToken token ->
                             ( { model | token = Just token }
-                            , Route.navigateTo <| Route.Protected Route.Home
+                            , Cmd.batch 
+                                [ Route.navigateTo <| Route.Protected Route.Home
+                                , Interop.syncToken <| Just token
+                                ]
                             )
             in
                 ( { newModel | page = LogIn pageModel }
