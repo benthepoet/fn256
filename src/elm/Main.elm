@@ -69,7 +69,7 @@ update msg model =
 
                         Page.LogIn.SetToken token ->
                             ( { model | token = Just token }
-                            , Navigation.modifyUrl <| Route.toPath <| Route.Protected Route.Home
+                            , Route.navigateTo <| Route.Protected Route.Home
                             )
             in
                 ( { newModel | page = LogIn pageModel }
@@ -89,7 +89,7 @@ update msg model =
                 Route.Protected page ->
                     case model.token of
                         Nothing ->
-                            ( model, Navigation.modifyUrl <| Route.toPath <| Route.Public Route.LogIn )
+                            ( model, Route.navigateTo <| Route.Public Route.LogIn )
 
                         Just token ->
                             case page of

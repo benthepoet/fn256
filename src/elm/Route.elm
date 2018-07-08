@@ -2,6 +2,7 @@ module Route exposing (..)
 
 
 import Html.Attributes as Attributes
+import Navigation
 import UrlParser exposing ((</>), int, map, oneOf, parseHash, s)
 
 
@@ -39,8 +40,12 @@ toPath route =
             "#/signup"
 
 
-href route =
-    Attributes.href <| toPath route
+href =
+    toPath >> Attributes.href
+
+
+navigateTo =
+    toPath >> Navigation.modifyUrl
 
 
 parse location =
