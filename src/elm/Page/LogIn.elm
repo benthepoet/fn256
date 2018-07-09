@@ -13,6 +13,8 @@ import Route
 
 type alias Model =
     { email : String
+    , isError : Bool
+    , isLoading : Bool
     , password : String
     }
 
@@ -30,16 +32,20 @@ type OutMsg
     
 
 init = 
-    Model "" ""
+    Model "" False False ""
 
 
 update msg model =
     case msg of
         LoginResponse (Err _) ->
-            ( model, Cmd.none, NoOp )
+            ( { model 
+                | isError = True
+                , isLoading = False }
+            , Cmd.none, NoOp 
+            )
             
         LoginResponse (Ok { token }) ->
-            ( model
+            ( { model | isLoading = False }
             , Cmd.none 
             , SetToken token
             )
@@ -57,13 +63,15 @@ update msg model =
             )
 
         Submit ->
-            ( model
+            ( { model 
+                | isError = False
+                , isLoading = True }
             , Http.send LoginResponse <| Request.login model.email model.password 
             , NoOp
             )
 
 
-view = 
+view model = 
     Html.div
         [ Attributes.class "columns" ]
         [ Elements.column []
@@ -76,8 +84,17 @@ view =
                     [ Html.h2
                         [ Attributes.class "subtitle is-4 has-text-centered" ]
                         [ Html.text "Log in to your account" ]
+                    , if model.isError then
+                        Html.article
+                            [ Attributes.class "message is-danger has-text-centered" ]
+                            [ Html.div
+                                [ Attributes.class "message-body p-l" ]
+                                [ Html.text "There was a problem with your login." ]
+                            ]
+                      else
+                        Html.div [] []
                     , Html.form
-                        []
+                        [ Events.onSubmit Submit ]
                         [ Elements.field
                             [ Html.p
                                 [ Attributes.class "control has-icons-left " ]
@@ -106,9 +123,8 @@ view =
                             ]
                         , Elements.field
                             [ Html.button 
-                                [ Attributes.class "button is-link full-width"
-                                , Attributes.type_ "button"
-                                , Events.onClick Submit
+                                [ Attributes.class <| "button is-link full-width" ++ if model.isLoading then " is-loading" else ""
+                                , Attributes.type_ "submit"
                                 ]
                                 [ Html.text "Log In" ]  
                             ]

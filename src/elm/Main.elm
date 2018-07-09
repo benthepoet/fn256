@@ -151,7 +151,7 @@ view model =
                     Html.div [] []
                     
                 LogIn subModel ->
-                    Page.LogIn.view
+                    Page.LogIn.view subModel
                         |> Html.map (LoginMsg subModel)  
                     
                 NotFound ->
