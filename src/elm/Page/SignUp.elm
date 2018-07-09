@@ -98,7 +98,9 @@ view model =
                             [ Html.p
                                 [ Attributes.class "control has-icons-left " ]
                                 [ Elements.email 
-                                    [ Events.onInput TypeEmail ]
+                                    [ Attributes.value model.email
+                                    , Events.onInput TypeEmail 
+                                    ]
                                 , Html.span
                                     [ Attributes.class "icon is-small is-left" ]
                                     [ Html.i 
@@ -111,7 +113,9 @@ view model =
                             [ Html.p
                                 [ Attributes.class "control has-icons-left" ]
                                 [ Elements.password 
-                                    [ Events.onInput TypePassword ]
+                                    [ Attributes.value model.password
+                                    , Events.onInput TypePassword
+                                    ]
                                 , Html.span
                                     [ Attributes.class "icon is-small is-left" ]
                                     [ Html.i 
