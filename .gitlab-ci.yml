@@ -1,11 +1,39 @@
 image: node:latest
 
-app:
+variables:
+  SSH_DOMAIN: "benpaulhanna.com"
+
+stages:
+  - build
+  - deploy
+
+build:
   cache:
     paths:
       - node_modules/
   
   stage: build
+  
   script:
     - npm install
     - npm run build
+    
+deploy:
+  stage: deploy
+  
+  only:
+  - master
+  
+  before_script:
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - ssh-keyscan "$SSH_DOMAIN" >> ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  
+  script:
+  - git remote add staging "bannon@$SSH_DOMAIN:/var/repo/fn256.git"
+  - git push staging master

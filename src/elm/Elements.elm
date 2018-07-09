@@ -10,6 +10,11 @@ column =
         [ Attributes.class "column" ]
 
 
+columns =
+    Html.div
+        [ Attributes.class "columns" ]
+
+
 confirmPassword attributes =
     Html.input
         ( attributes ++
