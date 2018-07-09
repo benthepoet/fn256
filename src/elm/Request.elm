@@ -15,7 +15,7 @@ api =
    (++) "/api" 
 
 
-loginDecoder =
+tokenDecoder =
     Decode.map LoginToken <| Decode.field "token" Decode.string
 
 
@@ -31,4 +31,23 @@ login email password =
         url = api "/auth/login"
         body = Http.jsonBody <| loginEncoder email password
     in
-        Http.post url body loginDecoder
+        Http.post url body tokenDecoder
+        
+signUp email password =
+    let
+        url = api "/auth/signup"
+        body = Http.jsonBody <| loginEncoder email password
+    in
+        postEmpty url body
+
+
+postEmpty url body =
+  Http.request
+    { method = "POST"
+    , headers = []
+    , url = url
+    , body = body
+    , expect = Http.expectStringResponse (\_ -> Ok ())
+    , timeout = Nothing
+    , withCredentials = False
+    }

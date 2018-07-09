@@ -5,39 +5,72 @@ import Elements
 import Html
 import Html.Attributes as Attributes
 import Html.Events as Events
+import Http
+import Request
 import Route
 
 
 type alias Model =
     { confirmPassword: String
     , email : String
+    , isError : Bool
+    , isLoading : Bool
     , password : String
     }
 
 
 type Msg
-    = TypeConfirmPassword String
+    = SignUpResponse (Result Http.Error ())
+    | Submit
+    | TypeConfirmPassword String
     | TypeEmail String
     | TypePassword String
 
 
 init = 
-    Model "" "" ""
+    Model "" "" False False ""
 
 
 update msg model =
     case msg of
+        SignUpResponse (Err _) ->
+            ( { model 
+                | isError = True
+                , isLoading = False }
+            , Cmd.none
+            )
+            
+        SignUpResponse (Ok ()) ->
+            ( { model 
+                | isError = False
+                , isLoading = False }
+            , Cmd.none
+            )
+    
+        Submit ->
+            ( { model 
+                | isError = False
+                , isLoading = True }
+            , Http.send SignUpResponse <| Request.signUp model.email model.password 
+            )
+        
         TypeConfirmPassword confirmPassword ->
-            { model | confirmPassword = confirmPassword }
+            ( { model | confirmPassword = confirmPassword }
+            , Cmd.none
+            )
 
         TypeEmail email ->
-            { model | email = email }
+            ( { model | email = email }
+            , Cmd.none
+            )
 
         TypePassword password ->
-            { model | password = password }
+            ( { model | password = password }
+            , Cmd.none
+            )
 
 
-view = 
+view model = 
     Html.div
         [ Attributes.class "columns" ]
         [ Elements.column []
@@ -50,8 +83,17 @@ view =
                     [ Html.h2
                         [ Attributes.class "subtitle is-4 has-text-centered" ]
                         [ Html.text "Sign up for an account" ]
+                    , if model.isError then
+                        Html.article
+                            [ Attributes.class "message is-danger has-text-centered" ]
+                            [ Html.div
+                                [ Attributes.class "message-body p-l" ]
+                                [ Html.text "There was a problem with your request." ]
+                            ]
+                      else
+                        Html.div [] []
                     , Html.form
-                        []
+                        [ Events.onSubmit Submit ]
                         [ Elements.field
                             [ Html.p
                                 [ Attributes.class "control has-icons-left " ]
@@ -93,8 +135,9 @@ view =
                             ]
                         , Elements.field
                             [ Html.button 
-                                [ Attributes.class "button is-link full-width"
-                                , Attributes.type_ "button"
+                                [ Attributes.class <| "button is-link full-width" ++ if model.isLoading then " is-loading" else ""
+                                , Attributes.type_ "submit"
+                                , Attributes.disabled <| model.confirmPassword /= model.password
                                 ]
                                 [ Html.text "Sign Up" ]  
                             ]

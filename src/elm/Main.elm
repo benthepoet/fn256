@@ -136,9 +136,12 @@ update msg model =
             )
             
         SignUpMsg subModel subMsg ->
-            ( { model | page = SignUp <| Page.SignUp.update subMsg subModel }
-            , Cmd.none
-            )
+            let
+                ( pageModel, subCmd ) = Page.SignUp.update subMsg subModel
+            in
+                 ( { model | page = SignUp pageModel }
+                , Cmd.map (SignUpMsg pageModel) subCmd
+                )
 
 view model =
     let
@@ -162,7 +165,7 @@ view model =
                         |> Html.map (ResetPasswordMsg subModel)
                     
                 SignUp subModel ->
-                    Page.SignUp.view
+                    Page.SignUp.view subModel
                         |> Html.map (SignUpMsg subModel)
     in
         Html.div [] [ pageView ]

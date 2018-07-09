@@ -41,11 +41,14 @@ update msg model =
             ( { model 
                 | isError = True
                 , isLoading = False }
-            , Cmd.none, NoOp 
+            , Cmd.none
+            , NoOp 
             )
             
         LoginResponse (Ok { token }) ->
-            ( { model | isLoading = False }
+            ( { model 
+                | isError = False
+                , isLoading = False }
             , Cmd.none 
             , SetToken token
             )
