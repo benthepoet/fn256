@@ -5,6 +5,7 @@ import Html.Attributes as Attributes
 import Html.Events as Events
 import Interop
 import Navigation
+import Page.Home
 import Page.LogIn
 import Page.NotFound
 import Page.ResetPassword
@@ -26,6 +27,7 @@ type alias Model =
 
 type Msg 
     = LoginMsg Page.LogIn.Model Page.LogIn.Msg
+    | LogOut
     | ResetPasswordMsg Page.ResetPassword.Model Page.ResetPassword.Msg
     | RouteChange Route.Route
     | SetToken String
@@ -88,6 +90,11 @@ update msg model =
                     , cmd
                     ]
                 )
+                
+        LogOut ->
+            ( { model | token = Nothing }
+            , Route.navigateTo <| Route.Public Route.LogIn 
+            )
             
         ResetPasswordMsg subModel subMsg ->
             ( { model | page = ResetPassword <| Page.ResetPassword.update subMsg subModel }
@@ -143,6 +150,28 @@ update msg model =
                 , Cmd.map (SignUpMsg pageModel) subCmd
                 )
 
+
+frame pageView = 
+    Html.div
+        []
+        [ Html.nav
+            [ Attributes.class "navbar" ]
+            [ Html.div 
+                [ Attributes.class "navbar-end" ]
+                [ Html.div
+                    [ Attributes.class "navbar-item" ]
+                    [ Html.button
+                        [ Attributes.class "button is-link"
+                        , Events.onClick LogOut
+                        ]
+                        [ Html.text "Log Out"]
+                    ]
+                ]
+            ]
+        , pageView
+        ]
+
+
 view model =
     let
         pageView =
@@ -151,7 +180,8 @@ view model =
                     Html.div [] []
             
                 Home ->
-                    Html.div [] []
+                    Page.Home.view
+                        |> frame
                     
                 LogIn subModel ->
                     Page.LogIn.view subModel
