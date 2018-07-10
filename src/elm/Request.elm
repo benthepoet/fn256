@@ -11,6 +11,7 @@ type alias LoginToken =
     }
 
 
+api : String -> String
 api =
    (++) "/api" 
 

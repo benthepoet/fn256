@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Html
+import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Interop
@@ -30,7 +30,6 @@ type Msg
     | LogOut
     | ResetPasswordMsg Page.ResetPassword.Model Page.ResetPassword.Msg
     | RouteChange Route.Route
-    | SetToken String
     | SignUpMsg Page.SignUp.Model Page.SignUp.Msg
 
 
@@ -62,10 +61,12 @@ init { token } location =
         )
 
 
+subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
 
 
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         LoginMsg subModel subMsg ->
@@ -93,7 +94,10 @@ update msg model =
                 
         LogOut ->
             ( { model | token = Nothing }
-            , Route.navigateTo <| Route.Public Route.LogIn 
+            , Cmd.batch
+                [ Route.navigateTo <| Route.Public Route.LogIn
+                , Interop.syncToken Nothing
+                ]
             )
             
         ResetPasswordMsg subModel subMsg ->
@@ -108,7 +112,7 @@ update msg model =
                         Nothing ->
                             ( model, Route.navigateTo <| Route.Public Route.LogIn )
 
-                        Just token ->
+                        Just _ ->
                             case page of
                                 Route.Home ->
                                     ( { model | page = Home }
@@ -116,41 +120,42 @@ update msg model =
                                     )
 
                 Route.Public page ->
-                    case page of
-                        Route.LogIn ->
-                            ( { model | page = LogIn Page.LogIn.init }
-                            , Cmd.none
-                            )
-                            
-                        Route.NotFound ->
-                            ( { model | page = NotFound }
-                            , Cmd.none
-                            )
-                            
-                        Route.ResetPassword ->
-                            ( { model | page = ResetPassword Page.ResetPassword.init }
-                            , Cmd.none
-                            )
-                            
-                        Route.SignUp ->
-                            ( { model | page = SignUp Page.SignUp.init }
-                            , Cmd.none
-                            )
-                            
-        SetToken token ->
-            ( { model | token = Just token }
-            , Cmd.none
-            )
-            
+                    case model.token of
+                        Nothing ->
+                            case page of
+                                Route.LogIn ->
+                                    ( { model | page = LogIn Page.LogIn.init }
+                                    , Cmd.none
+                                    )
+                                    
+                                Route.NotFound ->
+                                    ( { model | page = NotFound }
+                                    , Cmd.none
+                                    )
+                                    
+                                Route.ResetPassword ->
+                                    ( { model | page = ResetPassword Page.ResetPassword.init }
+                                    , Cmd.none
+                                    )
+                                    
+                                Route.SignUp ->
+                                    ( { model | page = SignUp Page.SignUp.init }
+                                    , Cmd.none
+                                    )
+                                    
+                        Just _ ->
+                            ( model, Route.navigateTo <| Route.Protected Route.Home )
+
         SignUpMsg subModel subMsg ->
             let
                 ( pageModel, subCmd ) = Page.SignUp.update subMsg subModel
             in
-                 ( { model | page = SignUp pageModel }
+                ( { model | page = SignUp pageModel }
                 , Cmd.map (SignUpMsg pageModel) subCmd
                 )
 
 
+frame : Html Msg -> Html Msg
 frame pageView = 
     Html.div
         []
@@ -178,30 +183,27 @@ frame pageView =
         ]
 
 
+view : Model -> Html Msg
 view model =
-    let
-        pageView =
-            case model.page of
-                Blank ->
-                    Html.div [] []
+    case model.page of
+        Blank ->
+            Html.div [] []
+    
+        Home ->
+            Page.Home.view
+                |> frame
             
-                Home ->
-                    Page.Home.view
-                        |> frame
-                    
-                LogIn subModel ->
-                    Page.LogIn.view subModel
-                        |> Html.map (LoginMsg subModel)  
-                    
-                NotFound ->
-                    Page.NotFound.view
-                    
-                ResetPassword subModel ->
-                    Page.ResetPassword.view
-                        |> Html.map (ResetPasswordMsg subModel)
-                    
-                SignUp subModel ->
-                    Page.SignUp.view subModel
-                        |> Html.map (SignUpMsg subModel)
-    in
-        Html.div [] [ pageView ]
+        LogIn subModel ->
+            Page.LogIn.view subModel
+                |> Html.map (LoginMsg subModel)  
+            
+        NotFound ->
+            Page.NotFound.view
+            
+        ResetPassword subModel ->
+            Page.ResetPassword.view
+                |> Html.map (ResetPasswordMsg subModel)
+            
+        SignUp subModel ->
+            Page.SignUp.view subModel
+                |> Html.map (SignUpMsg subModel)
