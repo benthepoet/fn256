@@ -1,55 +1,14 @@
 module Request exposing (..)
 
 
+import Data
 import Http
 import Json.Decode as Decode
-import Json.Encode as Encode
-
-
-type alias Document =
-    { name : String
-    , owner : Int
-    , width : Int
-    , height : Int
-    }
-
-
-type alias LoginToken =
-    { token : String
-    }
 
 
 api : String -> String
 api =
    (++) "/api" 
-
-
-documentDecoder = 
-    Decode.map4 Document
-        (Decode.field "name" Decode.string)
-        (Decode.field "owner" Decode.int)
-        (Decode.field "width" Decode.int)
-        (Decode.field "height" Decode.int)
-
-
-tokenDecoder =
-    Decode.map LoginToken <| Decode.field "token" Decode.string
-
-
-documentEncoder document =
-    Encode.object
-        [ ( "name", Encode.string document.name )
-        , ( "owner", Encode.int document.owner )
-        , ( "width", Encode.int document.width )
-        , ( "height", Encode.int document.height )
-        ]
-
-
-loginEncoder email password =
-    Encode.object
-        [ ( "email", Encode.string email )
-        , ( "password", Encode.string password )
-        ]
 
 
 createDocument token document =
@@ -58,9 +17,18 @@ createDocument token document =
     in
         Http.request
             { request
-            | body = Http.jsonBody <| documentEncoder document
-            , expect = Http.expectJson documentDecoder
+            | body = Http.jsonBody <| Data.documentEncoder document
+            , expect = Http.expectJson Data.documentDecoder
             }
+
+
+getDocument token id = 
+    let
+        request = get (api <| "/documents/" ++ id) token
+    in
+        Http.request
+            { request | expect = Http.expectJson Data.documentDecoder }
+
 
 getDocuments token = 
     let
@@ -70,7 +38,18 @@ getDocuments token =
             { request 
             | expect = Http.expectJson 
                 <| Decode.at ["data"] 
-                <| Decode.list documentDecoder 
+                <| Decode.list Data.documentDecoder 
+            }
+
+
+updateDocument token document =
+    let
+        request = put (api "/documents/" ++ (toString document.id)) token
+    in
+        Http.request
+            { request
+            | body = Http.jsonBody <| Data.documentEncoder document
+            , expect = Http.expectJson Data.documentDecoder
             }
 
 
@@ -80,8 +59,8 @@ login email password =
     in
         Http.request
             { request
-            | body = Http.jsonBody <| loginEncoder email password
-            , expect = Http.expectJson tokenDecoder
+            | body = Http.jsonBody <| Data.loginEncoder email password
+            , expect = Http.expectJson Data.tokenDecoder
             }
 
 
@@ -90,7 +69,7 @@ signUp email password =
         request = post (api "/auth/signup") Nothing
     in
         Http.request
-            { request | body = Http.jsonBody <| loginEncoder email password }
+            { request | body = Http.jsonBody <| Data.loginEncoder email password }
 
 
 make method url token =
@@ -119,3 +98,7 @@ get =
 
 post =
     make "POST"
+    
+    
+put = 
+    make "PUT"

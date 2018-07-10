@@ -1,6 +1,7 @@
 module Page.Home exposing (..)
 
 
+import Data
 import Elements
 import Html
 import Html.Attributes as Attributes
@@ -10,18 +11,20 @@ import Request
 
 
 type alias Model =
-    { documents : List Request.Document
+    { documents : List Data.Document
     , isError : Bool
     , isLoading : Bool
+    , selected : Maybe Data.Document
     }
 
 
 type Msg
-    = LoadDocuments (Result Http.Error (List Request.Document))
+    = LoadDocuments (Result Http.Error (List Data.Document))
+    | Select Data.Document
 
 
 init token = 
-    ( Model [] False True
+    ( Model [] False True Nothing
     , Http.send LoadDocuments <| Request.getDocuments <| Just token
     )
     
@@ -40,19 +43,59 @@ update msg model =
             | isError = True
             , isLoading = False
             }
+            
+        Select document ->
+            { model | selected = Just document }
 
 
-viewDocument document =
-    Html.a
-        [ Attributes.class "panel-block" ]
-        [ Html.span
-            [ Attributes.class "panel-icon" ]
-            [ Html.i 
-                [ Attributes.class "fas fa-file-alt" ]
-                []
+viewDocument selected document =
+    let
+        isActive =
+            case selected of
+                Nothing ->
+                    False
+                
+                Just { id } ->
+                    id == document.id
+    in
+        Html.a
+            [ Attributes.class <| "panel-block" ++ if isActive then " is-active" else ""
+            , Events.onClick <| Select document 
             ]
-        , Html.text document.name
-        ]
+            [ Html.span
+                [ Attributes.class "panel-icon" ]
+                [ Html.i 
+                    [ Attributes.class "fas fa-file-alt" ]
+                    []
+                ]
+            , Html.text document.name
+            ]
+
+
+viewSelected selected =
+    case selected of
+        Nothing ->
+            Html.div [] []
+    
+        Just document ->
+            Html.div
+                [ Attributes.class "card mt-1 mr-1" ]
+                [ Html.header
+                    [ Attributes.class "card-header" ]
+                    [ Html.p 
+                        [ Attributes.class "card-header-title" ]
+                        [ Html.text document.name ]
+                    ]
+                , Html.footer
+                    [ Attributes.class "card-footer" ]
+                    [ Html.a 
+                        [ Attributes.class "card-footer-item" ]
+                        [ Html.text "Edit" ]
+                    , Html.a 
+                        [ Attributes.class "card-footer-item" ]
+                        [ Html.text "Delete" ]
+                    ]
+                ]
 
 
 view subModel =
@@ -61,13 +104,7 @@ view subModel =
             if subModel.isLoading then
                 Html.div
                     [ Attributes.class "has-text-centered mt-3" ]
-                    [ Html.span
-                        [ Attributes.class "icon" ]
-                        [ Html.i
-                            [ Attributes.class "fas fa-2x fa-spinner fa-pulse" ]
-                            []
-                        ]
-                    ]
+                    [ Elements.spinner ]
             else
                 Html.nav
                     [ Attributes.class "panel mt-1 ml-1 has-background-white" ]
@@ -92,11 +129,11 @@ view subModel =
                                 ]
                             ]
                         ]
-                    ] ++ List.map viewDocument subModel.documents 
+                    ] ++ List.map (viewDocument subModel.selected) subModel.documents 
     in
         Elements.columns
-            [ Elements.column 
-                [ content ]
-            , Elements.column []
-            , Elements.column []
+            [ Elements.column [ content ]
+            , Html.div
+                [ Attributes.class "column is-two-thirds" ]
+                [ viewSelected subModel.selected ]
             ]

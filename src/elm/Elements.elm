@@ -26,11 +26,6 @@ confirmPassword attributes =
         []
 
 
-field =
-    Html.div 
-        [ Attributes.class "field" ]
-
-
 email attributes = 
     Html.input 
         ( attributes ++
@@ -42,6 +37,11 @@ email attributes =
         []
 
 
+field =
+    Html.div 
+        [ Attributes.class "field" ]
+
+
 password attributes =
     Html.input
         ( attributes ++
@@ -51,3 +51,12 @@ password attributes =
             ]
         )
         []
+
+
+spinner =
+    Html.span
+        [ Attributes.class "icon" ]
+        [ Html.i
+            [ Attributes.class "fas fa-2x fa-spinner fa-pulse" ]
+            []
+        ]

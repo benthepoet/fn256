@@ -30,6 +30,10 @@ html, body {
   margin-left: 1rem;
 }
 
+.mr-1 {
+  margin-right: 1rem;
+}
+
 .panel.has-background-white {
   border-radius: 4px 4px 0 0;
 }
