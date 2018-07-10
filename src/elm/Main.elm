@@ -26,7 +26,8 @@ type alias Model =
 
 
 type Msg 
-    = LoginMsg Page.LogIn.Model Page.LogIn.Msg
+    = HomeMsg Page.Home.Model Page.Home.Msg
+    | LoginMsg Page.LogIn.Model Page.LogIn.Msg
     | LogOut
     | ResetPasswordMsg Page.ResetPassword.Model Page.ResetPassword.Msg
     | RouteChange Route.Route
@@ -35,7 +36,7 @@ type Msg
 
 type Page
     = Blank
-    | Home
+    | Home Page.Home.Model
     | LogIn Page.LogIn.Model
     | NotFound
     | ResetPassword Page.ResetPassword.Model
@@ -69,6 +70,14 @@ subscriptions model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        HomeMsg subModel subMsg ->
+            let
+                pageModel = Page.Home.update subMsg subModel
+            in
+                ( { model | page = Home pageModel }
+                , Cmd.none
+                )
+    
         LoginMsg subModel subMsg ->
             let
                 ( pageModel, subCmd, outCmd ) = Page.LogIn.update subMsg subModel
@@ -112,12 +121,15 @@ update msg model =
                         Nothing ->
                             ( model, Route.navigateTo <| Route.Public Route.LogIn )
 
-                        Just _ ->
+                        Just token ->
                             case page of
                                 Route.Home ->
-                                    ( { model | page = Home }
-                                    , Cmd.none
-                                    )
+                                    let
+                                        ( subModel, subCmd ) = Page.Home.init token
+                                    in
+                                        ( { model | page = Home subModel }
+                                        , Cmd.map (HomeMsg subModel) subCmd
+                                        )
 
                 Route.Public page ->
                     case model.token of
@@ -207,8 +219,9 @@ view model =
         Blank ->
             Html.div [] []
     
-        Home ->
-            Page.Home.view
+        Home subModel ->
+            Page.Home.view subModel
+                |> Html.map (HomeMsg subModel)
                 |> frame
             
         LogIn subModel ->

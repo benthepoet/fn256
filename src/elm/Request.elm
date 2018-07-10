@@ -67,7 +67,11 @@ getDocuments token =
         request = get (api "/documents") token
     in 
         Http.request
-            { request | expect = Http.expectJson documentDecoder }
+            { request 
+            | expect = Http.expectJson 
+                <| Decode.at ["data"] 
+                <| Decode.list documentDecoder 
+            }
 
 
 login email password =
