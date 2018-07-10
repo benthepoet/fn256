@@ -188,7 +188,7 @@ frame pageView =
                     [ Attributes.class "navbar-start" ]
                     [ Html.a 
                         [ Attributes.class "navbar-item is-active" ]
-                        [ Html.text "Documents" ]
+                        [ Html.text "Home" ]
                     ]
                 ]
             , Html.div 
