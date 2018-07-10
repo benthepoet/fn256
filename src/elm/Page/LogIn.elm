@@ -28,7 +28,7 @@ type Msg
 
 type OutMsg
     = NoOp
-    | SetToken String
+    | SetUser Data.User
     
 
 init = 
@@ -50,7 +50,7 @@ update msg model =
                 | isError = False
                 , isLoading = False }
             , Cmd.none 
-            , SetToken token
+            , SetUser <| Data.User model.email token
             )
 
         TypeEmail email ->

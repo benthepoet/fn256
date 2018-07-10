@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Data
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
@@ -21,7 +22,7 @@ type alias Flags =
 
 type alias Model =
     { page : Page
-    , token : Maybe String
+    , user : Maybe Data.User
     }
 
 
@@ -57,7 +58,7 @@ init { token } location =
     let
         route = Route.parse location
     in
-        ( Model Blank token
+        ( Model Blank <| Just <| Data.User "" (Maybe.withDefault "" token)
         , Task.perform RouteChange <| Task.succeed route
         )
 
@@ -86,11 +87,11 @@ update msg model =
                         Page.LogIn.NoOp ->
                             ( model, Cmd.none )
 
-                        Page.LogIn.SetToken token ->
-                            ( { model | token = Just token }
+                        Page.LogIn.SetUser user ->
+                            ( { model | user = Just user }
                             , Cmd.batch 
                                 [ Route.navigateTo <| Route.Protected Route.Home
-                                , Interop.syncToken <| Just token
+                                , Interop.syncToken <| Just user.token
                                 ]
                             )
             in
@@ -102,7 +103,7 @@ update msg model =
                 )
                 
         LogOut ->
-            ( { model | token = Nothing }
+            ( { model | user = Nothing }
             , Cmd.batch
                 [ Route.navigateTo <| Route.Public Route.LogIn
                 , Interop.syncToken Nothing
@@ -117,22 +118,22 @@ update msg model =
         RouteChange route ->
             case route of
                 Route.Protected page ->
-                    case model.token of
+                    case model.user of
                         Nothing ->
                             ( model, Route.navigateTo <| Route.Public Route.LogIn )
 
-                        Just token ->
+                        Just user ->
                             case page of
                                 Route.Home ->
                                     let
-                                        ( subModel, subCmd ) = Page.Home.init token
+                                        ( subModel, subCmd ) = Page.Home.init user.token
                                     in
                                         ( { model | page = Home subModel }
                                         , Cmd.map (HomeMsg subModel) subCmd
                                         )
 
                 Route.Public page ->
-                    case model.token of
+                    case model.user of
                         Nothing ->
                             case page of
                                 Route.LogIn ->
@@ -197,7 +198,7 @@ frame pageView =
                     [ Attributes.class "navbar-item has-dropdown is-hoverable" ]
                     [ Html.a
                         [ Attributes.class "navbar-link" ]
-                        [ Html.text "User" ]
+                        [ Html.text "editor@home.com" ]
                     , Html.div
                         [ Attributes.class "navbar-dropdown" ]
                         [ Html.a
