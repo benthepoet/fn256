@@ -161,7 +161,25 @@ frame pageView =
         []
         [ Html.nav
             [ Attributes.class "navbar is-dark" ]
-            [ Html.div 
+            [ Html.div
+                [ Attributes.class "navbar-brand" ]
+                [ Html.a 
+                    [ Attributes.class "navbar-item" ]
+                    [ Html.h4 
+                        [ Attributes.class "subtitle is-4 has-text-white" ]
+                        [ Html.text "FN256" ] 
+                    ]
+                ]
+            , Html.div
+                [ Attributes.class "navbar-menu" ]
+                [ Html.div
+                    [ Attributes.class "navbar-start" ]
+                    [ Html.a 
+                        [ Attributes.class "navbar-item is-active" ]
+                        [ Html.text "Documents" ]
+                    ]
+                ]
+            , Html.div 
                 [ Attributes.class "navbar-end" ]
                 [ Html.div
                     [ Attributes.class "navbar-item has-dropdown is-hoverable" ]
