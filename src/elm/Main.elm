@@ -155,18 +155,6 @@ frame pageView =
     Html.div
         []
         [ Html.nav
-<<<<<<< HEAD
-            [ Attributes.class "navbar" ]
-            [ Html.div 
-                [ Attributes.class "navbar-end" ]
-                [ Html.div
-                    [ Attributes.class "navbar-item" ]
-                    [ Html.button
-                        [ Attributes.class "button is-link"
-                        , Events.onClick LogOut
-                        ]
-                        [ Html.text "Log Out"]
-=======
             [ Attributes.class "navbar is-dark" ]
             [ Html.div 
                 [ Attributes.class "navbar-end" ]
@@ -183,7 +171,6 @@ frame pageView =
                             ]
                             [ Html.text "Log Out"]
                         ]
->>>>>>> work
                     ]
                 ]
             ]
