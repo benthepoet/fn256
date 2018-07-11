@@ -1,4 +1,4 @@
-port module Interop exposing (..)
+port module Ports exposing (..)
 
 
 import Json.Encode as Encode

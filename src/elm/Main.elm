@@ -4,7 +4,6 @@ import Data
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
-import Interop
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Navigation
@@ -13,6 +12,7 @@ import Page.LogIn
 import Page.NotFound
 import Page.ResetPassword
 import Page.SignUp
+import Ports
 import Route
 import Task
 
@@ -46,6 +46,7 @@ type Page
     | SignUp Page.SignUp.Model
 
 
+main : Program Flags Model Msg
 main =
     Navigation.programWithFlags (Route.parse >> RouteChange)
         { init = init
@@ -96,7 +97,7 @@ update msg model =
                             ( { model | user = Just user }
                             , Cmd.batch 
                                 [ Route.navigateTo <| Route.Protected Route.Home
-                                , Interop.syncUser <| Data.userEncoder user
+                                , Ports.syncUser <| Data.userEncoder user
                                 ]
                             )
             in
@@ -111,7 +112,7 @@ update msg model =
             ( { model | user = Nothing }
             , Cmd.batch
                 [ Route.navigateTo <| Route.Public Route.LogIn
-                , Interop.syncUser Encode.null
+                , Ports.syncUser Encode.null
                 ]
             )
             
