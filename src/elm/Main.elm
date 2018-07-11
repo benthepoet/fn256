@@ -173,8 +173,8 @@ update msg model =
                 )
 
 
-frame : Html Msg -> Html Msg
-frame pageView = 
+frame : Data.User -> Html Msg -> Html Msg
+frame user pageView = 
     Html.div
         []
         [ Html.nav
@@ -203,7 +203,7 @@ frame pageView =
                     [ Attributes.class "navbar-item has-dropdown is-hoverable" ]
                     [ Html.a
                         [ Attributes.class "navbar-link" ]
-                        [ Html.text "User" ]
+                        [ Html.text user.email ]
                     , Html.div
                         [ Attributes.class "navbar-dropdown" ]
                         [ Html.a
@@ -221,26 +221,26 @@ frame pageView =
 
 view : Model -> Html Msg
 view model =
-    case model.page of
-        Blank ->
-            Html.div [] []
-    
-        Home subModel ->
+    case (model.page, model.user) of
+        (Home subModel, Just user) ->
             Page.Home.view subModel
                 |> Html.map (HomeMsg subModel)
-                |> frame
+                |> frame user
             
-        LogIn subModel ->
+        (LogIn subModel, Nothing) ->
             Page.LogIn.view subModel
                 |> Html.map (LoginMsg subModel)  
             
-        NotFound ->
+        (NotFound, Nothing) ->
             Page.NotFound.view
             
-        ResetPassword subModel ->
+        (ResetPassword subModel, Nothing) ->
             Page.ResetPassword.view
                 |> Html.map (ResetPasswordMsg subModel)
             
-        SignUp subModel ->
+        (SignUp subModel, Nothing) ->
             Page.SignUp.view subModel
                 |> Html.map (SignUpMsg subModel)
+                
+        _ ->
+            Html.div [] []

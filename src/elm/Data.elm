@@ -15,7 +15,8 @@ type alias Document =
 
 
 type alias User =
-    { token : String
+    { email : String
+    , token : String
     }
 
 
@@ -46,11 +47,13 @@ loginEncoder email password =
 
 
 userDecoder =
-    Decode.map User 
+    Decode.map2 User
+        (Decode.field "email" Decode.string)
         (Decode.field "token" Decode.string)
         
         
 userEncoder user =
     Encode.object
-        [ ( "token", Encode.string user.token )
+        [ ( "email", Encode.string user.email )
+        , ( "token", Encode.string user.token )
         ]
