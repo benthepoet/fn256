@@ -19,12 +19,6 @@ type alias LoginToken =
     }
 
 
-type alias User =
-    { email : String
-    , token : String
-    }
-
-
 documentDecoder = 
     Decode.map5 Document
         (Decode.field "id" Decode.int)
