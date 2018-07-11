@@ -1,6 +1,7 @@
 module Route exposing (..)
 
 
+import Html
 import Html.Attributes as Attributes
 import Navigation
 import UrlParser exposing ((</>), int, map, oneOf, parseHash, s)
@@ -22,6 +23,7 @@ type Route
     | Public PublicRoute
 
 
+toPath : Route -> String
 toPath route =
     case route of
         Protected Home ->
@@ -40,12 +42,14 @@ toPath route =
             "#/signup"
 
 
+href : Route -> Html.Attribute msg
 href =
-    toPath >> Attributes.href
+    Attributes.href << toPath
 
 
+navigateTo : Route -> Cmd msg
 navigateTo =
-    toPath >> Navigation.modifyUrl
+    Navigation.modifyUrl << toPath
 
 
 parse location =

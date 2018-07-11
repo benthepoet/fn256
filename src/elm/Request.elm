@@ -9,18 +9,18 @@ import Json.Decode as Decode
 api : String -> String
 api =
    (++) "/api" 
-   
-   
-queryString params =
+
+
+queryString : List (String, String) -> String
+queryString =
     let
         param (key, value) =
             key ++ "=" ++ value
     in
-        List.map param params
-            |> String.join "&"
-            |> (++) "?"
+        (++) "?" << String.join "&" << List.map param
 
 
+createDocument : Maybe String -> Data.Document -> Http.Request Data.Document
 createDocument token document =
     let
         request = post (api "/documents") token
@@ -32,6 +32,7 @@ createDocument token document =
             }
 
 
+getDocument : Maybe String -> String -> Http.Request Data.Document
 getDocument token id = 
     let
         request = get (api <| "/documents/" ++ id) token
@@ -40,6 +41,7 @@ getDocument token id =
             { request | expect = Http.expectJson Data.documentDecoder }
 
 
+getDocuments : Maybe String -> List (String, String) -> Http.Request (List Data.Document)
 getDocuments token params = 
     let
         url = (api "/documents") ++ (queryString params)
@@ -53,6 +55,7 @@ getDocuments token params =
             }
 
 
+updateDocument : Maybe String -> Data.Document -> Http.Request Data.Document
 updateDocument token document =
     let
         request = put (api "/documents/" ++ (toString document.id)) token
@@ -64,6 +67,7 @@ updateDocument token document =
             }
 
 
+login : String -> String -> Http.Request Data.User
 login email password =
     let
         request = post (api "/auth/login") Nothing
@@ -75,6 +79,7 @@ login email password =
             }
 
 
+signUp : String -> String -> Http.Request ()
 signUp email password =
     let
         request = post (api "/auth/signup") Nothing

@@ -48,7 +48,7 @@ type Page
 
 main : Program Flags Model Msg
 main =
-    Navigation.programWithFlags (Route.parse >> RouteChange)
+    Navigation.programWithFlags (RouteChange << Route.parse)
         { init = init
         , update = update
         , subscriptions = subscriptions
