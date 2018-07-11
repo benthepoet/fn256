@@ -37,9 +37,8 @@ module.exports = {
     disableHostCheck: true,
     proxy: {
       '/api': {
-         target: 'https://ek512.benpaulhanna.com',
-         changeOrigin: true,
-         pathRewrite: { '^/api': '' }
+         target: 'https://fn256.benpaulhanna.com',
+         changeOrigin: true
       }
     }
   }
