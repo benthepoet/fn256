@@ -79,10 +79,10 @@ update msg model =
     case msg of
         HomeMsg subModel subMsg ->
             let
-                pageModel = Page.Home.update subMsg subModel
+                ( pageModel, subCmd ) = Page.Home.update model.user subMsg subModel
             in
                 ( { model | page = Home pageModel }
-                , Cmd.none
+                , Cmd.map (HomeMsg pageModel) subCmd
                 )
     
         LoginMsg subModel subMsg ->
@@ -128,11 +128,11 @@ update msg model =
                         Nothing ->
                             ( model, Route.navigateTo <| Route.Public Route.LogIn )
 
-                        Just { token } ->
+                        Just user ->
                             case page of
                                 Route.Home ->
                                     let
-                                        ( subModel, subCmd ) = Page.Home.init token
+                                        ( subModel, subCmd ) = Page.Home.init user
                                     in
                                         ( { model | page = Home subModel }
                                         , Cmd.map (HomeMsg subModel) subCmd

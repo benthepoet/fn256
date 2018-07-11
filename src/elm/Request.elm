@@ -9,6 +9,16 @@ import Json.Decode as Decode
 api : String -> String
 api =
    (++) "/api" 
+   
+   
+queryString params =
+    let
+        param (key, value) =
+            key ++ "=" ++ value
+    in
+        List.map param params
+            |> String.join "&"
+            |> (++) "?"
 
 
 createDocument token document =
@@ -30,9 +40,10 @@ getDocument token id =
             { request | expect = Http.expectJson Data.documentDecoder }
 
 
-getDocuments token = 
+getDocuments token params = 
     let
-        request = get (api "/documents") token
+        url = (api "/documents") ++ (queryString params)
+        request = get url token
     in 
         Http.request
             { request 

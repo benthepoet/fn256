@@ -20,32 +20,49 @@ type alias Model =
 
 type Msg
     = LoadDocuments (Result Http.Error (List Data.Document))
+    | Search String
     | Select Data.Document
 
 
-init token = 
+init user = 
     ( Model [] False True Nothing
-    , Http.send LoadDocuments <| Request.getDocuments <| Just token
+    , Http.send LoadDocuments <| Request.getDocuments (Just user.token) []
     )
     
     
-update msg model =
-    case msg of
-        LoadDocuments (Ok documents) ->
-            { model
-            | documents = documents
-            , isError = False
-            , isLoading = False
-            }
-            
-        LoadDocuments (Err _) ->
-            { model
-            | isError = True
-            , isLoading = False
-            }
-            
-        Select document ->
-            { model | selected = Just document }
+update user msg model =
+    let
+        token = Maybe.map .token user
+    in
+        case msg of
+            LoadDocuments (Ok documents) ->
+                ( { model
+                    | documents = documents
+                    , isError = False
+                    , isLoading = False
+                    }
+                , Cmd.none
+                )
+                
+            LoadDocuments (Err _) ->
+                ({ model
+                    | isError = True
+                    , isLoading = False
+                    }
+                , Cmd.none
+                )
+                
+            Search search ->
+                ( model
+                , Http.send LoadDocuments 
+                    <| Request.getDocuments token 
+                        [ ("search", search) ]
+                )
+                
+            Select document ->
+                ( { model | selected = Just document }
+                , Cmd.none
+                )
 
 
 viewDocument selected document =
@@ -119,6 +136,7 @@ view subModel =
                                 [ Attributes.class "input"
                                 , Attributes.placeholder "Search"
                                 , Attributes.type_ "text"
+                                , Events.onInput Search
                                 ]
                                 []
                             , Html.span
