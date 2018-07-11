@@ -5,29 +5,30 @@ require('./css/style.css');
 // Set config
 var config = {
   STORAGE: {
-    TOKEN: 'token'
+    USER: 'user'
   }
 };
 
 // Set flags
 var flags = {
-  token: getItem(config.STORAGE.TOKEN)
+  user: getItem(config.STORAGE.USER)
 };
 
 // Run the application
 var app = Elm.Main.fullscreen(flags);
 
 // Set subscriptions
-app.ports.syncToken.subscribe(setItem.bind(null, config.STORAGE.TOKEN));
+app.ports.syncUser.subscribe(setItem.bind(null, config.STORAGE.USER));
 
 function getItem(key) {
-  return sessionStorage.getItem(key);
+  var value = sessionStorage.getItem(key);
+  return JSON.parse(value);
 }
 
 function setItem(key, value) {
   if (!value) {
     sessionStorage.removeItem(key);
   } else {
-    sessionStorage.setItem(key, value);
+    sessionStorage.setItem(key, JSON.stringify(value));
   }
 }

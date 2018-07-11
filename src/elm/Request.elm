@@ -60,7 +60,7 @@ login email password =
         Http.request
             { request
             | body = Http.jsonBody <| Data.loginEncoder email password
-            , expect = Http.expectJson Data.tokenDecoder
+            , expect = Http.expectJson Data.userDecoder
             }
 
 

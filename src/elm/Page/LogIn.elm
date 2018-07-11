@@ -20,7 +20,7 @@ type alias Model =
 
 
 type Msg
-    = LoginResponse (Result Http.Error Data.LoginToken)
+    = LoginResponse (Result Http.Error Data.User)
     | Submit
     | TypeEmail String
     | TypePassword String
@@ -28,7 +28,7 @@ type Msg
 
 type OutMsg
     = NoOp
-    | SetToken String
+    | SetUser Data.User
     
 
 init = 
@@ -45,12 +45,12 @@ update msg model =
             , NoOp 
             )
             
-        LoginResponse (Ok { token }) ->
+        LoginResponse (Ok user) ->
             ( { model 
                 | isError = False
                 , isLoading = False }
             , Cmd.none 
-            , SetToken token
+            , SetUser user
             )
 
         TypeEmail email ->

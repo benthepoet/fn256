@@ -1,9 +1,12 @@
 module Main exposing (..)
 
+import Data
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Interop
+import Json.Decode as Decode
+import Json.Encode as Encode
 import Navigation
 import Page.Home
 import Page.LogIn
@@ -15,13 +18,13 @@ import Task
 
 
 type alias Flags =
-    { token : Maybe String
+    { user : Decode.Value
     }
 
 
 type alias Model =
     { page : Page
-    , token : Maybe String
+    , user : Maybe Data.User
     }
 
 
@@ -53,11 +56,14 @@ main =
 
 
 init : Flags -> Navigation.Location -> (Model, Cmd Msg)
-init { token } location =
+init flags location =
     let
         route = Route.parse location
+        user = flags.user
+            |> Decode.decodeValue Data.userDecoder 
+            |> Result.toMaybe
     in
-        ( Model Blank token
+        ( Model Blank user  
         , Task.perform RouteChange <| Task.succeed route
         )
 
@@ -86,11 +92,11 @@ update msg model =
                         Page.LogIn.NoOp ->
                             ( model, Cmd.none )
 
-                        Page.LogIn.SetToken token ->
-                            ( { model | token = Just token }
+                        Page.LogIn.SetUser user ->
+                            ( { model | user = Just user }
                             , Cmd.batch 
                                 [ Route.navigateTo <| Route.Protected Route.Home
-                                , Interop.syncToken <| Just token
+                                , Interop.syncUser <| Data.userEncoder user
                                 ]
                             )
             in
@@ -102,10 +108,10 @@ update msg model =
                 )
                 
         LogOut ->
-            ( { model | token = Nothing }
+            ( { model | user = Nothing }
             , Cmd.batch
                 [ Route.navigateTo <| Route.Public Route.LogIn
-                , Interop.syncToken Nothing
+                , Interop.syncUser Encode.null
                 ]
             )
             
@@ -117,11 +123,11 @@ update msg model =
         RouteChange route ->
             case route of
                 Route.Protected page ->
-                    case model.token of
+                    case model.user of
                         Nothing ->
                             ( model, Route.navigateTo <| Route.Public Route.LogIn )
 
-                        Just token ->
+                        Just { token } ->
                             case page of
                                 Route.Home ->
                                     let
@@ -132,7 +138,7 @@ update msg model =
                                         )
 
                 Route.Public page ->
-                    case model.token of
+                    case model.user of
                         Nothing ->
                             case page of
                                 Route.LogIn ->

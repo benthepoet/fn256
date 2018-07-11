@@ -1,4 +1,7 @@
 port module Interop exposing (..)
 
 
-port syncToken : Maybe String -> Cmd msg
+import Json.Encode as Encode
+
+
+port syncUser : Encode.Value -> Cmd msg
