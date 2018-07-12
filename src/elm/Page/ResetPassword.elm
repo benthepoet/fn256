@@ -1,7 +1,6 @@
 module Page.ResetPassword exposing (..)
 
 
-import Debug
 import Elements
 import Html
 import Html.Attributes as Attributes
@@ -25,12 +24,11 @@ init =
 update msg model =
     case msg of
         TypeEmail email ->
-            { model | email = Debug.log "email" email }
+            { model | email = email }
 
 
 view = 
-    Html.div
-        [ Attributes.class "columns" ]
+    Elements.columns
         [ Elements.column []
         , Html.div
             [ Attributes.class "column is-narrow" ]

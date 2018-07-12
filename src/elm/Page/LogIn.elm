@@ -75,8 +75,7 @@ update msg model =
 
 
 view model = 
-    Html.div
-        [ Attributes.class "columns" ]
+    Elements.columns
         [ Elements.column []
         , Html.div
             [ Attributes.class "column is-narrow" ]

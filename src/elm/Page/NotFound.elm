@@ -7,8 +7,7 @@ import Html.Attributes as Attributes
 
 
 view =
-    Html.div
-        [ Attributes.class "columns" ]
+    Elements.columns
         [ Elements.column []
         , Elements.column
             [ Html.div 

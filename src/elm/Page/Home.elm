@@ -117,7 +117,7 @@ viewSelected selected =
 
 view subModel =
     let
-        content =
+        contentView =
             if subModel.isLoading then
                 Html.div
                     [ Attributes.class "has-text-centered mt-3" ]
@@ -150,7 +150,7 @@ view subModel =
                     ] ++ List.map (viewDocument subModel.selected) subModel.documents 
     in
         Elements.columns
-            [ Elements.column [ content ]
+            [ Elements.column [ contentView ]
             , Html.div
                 [ Attributes.class "column is-two-thirds" ]
                 [ viewSelected subModel.selected ]
