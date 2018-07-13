@@ -42,5 +42,15 @@ update user msg model =
 
 
 view subModel =
-    Elements.columns 
-        [ Html.text "Document Loaded" ]
+    Html.div
+        [ Attributes.class "columns fill-vert" ]
+        [ Html.div
+            [ Attributes.class "column toolbox is-narrow w-small has-background-white" ]
+            []
+        , Html.div
+            [ Attributes.class "column" ]
+            [ Html.div 
+                [ Attributes.class "mt-4" ]
+                [ Html.text "Document Loaded" ]
+            ]
+        ]

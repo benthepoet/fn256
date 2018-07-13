@@ -196,7 +196,7 @@ update msg model =
 frame : Data.User -> Html Msg -> Html Msg
 frame user pageView = 
     Html.div
-        []
+        [ Attributes.class "wrapper" ]
         [ Html.nav
             [ Attributes.class "navbar is-dark" ]
             [ Html.div
@@ -242,6 +242,11 @@ frame user pageView =
 view : Model -> Html Msg
 view model =
     case (model.page, model.user) of
+        (Editor subModel, Just user) ->
+            Page.Editor.view subModel
+                |> Html.map (EditorMsg subModel)
+                |> frame user
+    
         (Home subModel, Just user) ->
             Page.Home.view subModel
                 |> Html.map (HomeMsg subModel)

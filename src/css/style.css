@@ -2,6 +2,10 @@ html, body {
   background-color: #eee;
 }
 
+.w-small {
+  width: 200px;
+}
+
 .w-medium {
   width: 400px;
 }
@@ -36,4 +40,14 @@ html, body {
 
 .panel.has-background-white {
   border-radius: 4px 4px 0 0;
+}
+
+.wrapper {
+  height: 100vh;
+  display: flex;
+  flex-flow: column;
+}
+
+.fill-vert {
+  flex: 1;
 }
