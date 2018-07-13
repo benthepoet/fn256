@@ -90,7 +90,7 @@ view model =
                         Html.article
                             [ Attributes.class "message is-danger has-text-centered" ]
                             [ Html.div
-                                [ Attributes.class "message-body p-l" ]
+                                [ Attributes.class "message-body pl" ]
                                 [ Html.text "There was a problem with your login." ]
                             ]
                       else

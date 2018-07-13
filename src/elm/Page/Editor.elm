@@ -45,18 +45,38 @@ view subModel =
     Html.div 
         [ Attributes.class "flex-1 flex-column" ]
         [ Html.div
-            []
-            [ Html.text "My Document" ]
+            [ Attributes.class "pl shadow-b has-background-link has-text-white" ]
+            [ Html.span
+                [ Attributes.class "icon pl-1 pr-1" ]
+                [ Elements.fas "file-alt" ]
+            , Html.span
+                [ Attributes.class "has-text-white has-text-semi-bold" ]
+                [ Html.text "My Document" ]
+            ]
         , Html.div
             [ Attributes.class "columns flex-1 mb-0 mt-0" ]
             [ Html.div
-                [ Attributes.class "column is-narrow w-small has-background-white" ]
-                []
+                [ Attributes.class "column is-narrow w-x-small shadow-r has-background-white" ]
+                [ Elements.columns 
+                    [ Html.div
+                        [ Attributes.class "column ml-0 mr-0 has-text-centered" ]
+                        [ Html.span
+                            [ Attributes.class "icon tool" ]
+                            [ Elements.fas "mouse-pointer" ]
+                        , Html.span
+                            [ Attributes.class "icon tool" ]
+                            [ Elements.fas "font" ]
+                        , Html.span
+                            [ Attributes.class "icon tool" ]
+                            [ Elements.far "square" ]
+                        ]
+                    ]
+                ]
             , Html.div
                 [ Attributes.class "column" ]
                 [ Html.div 
-                    [ Attributes.class "mt-4" ]
-                    [ Html.text "Document Loaded" ]
+                    [ Attributes.class "mt-1" ]
+                    []
                 ]
             ]
         ]

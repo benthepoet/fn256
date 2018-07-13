@@ -213,7 +213,9 @@ frame user pageView =
                 [ Html.div
                     [ Attributes.class "navbar-start" ]
                     [ Html.a 
-                        [ Attributes.class "navbar-item is-active" ]
+                        [ Attributes.class "navbar-item is-active" 
+                        , Route.href <| Route.Protected Route.Home
+                        ]
                         [ Html.text "Home" ]
                     ]
                 ]
