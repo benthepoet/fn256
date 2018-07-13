@@ -8,6 +8,7 @@ import Html.Attributes as Attributes
 import Html.Events as Events
 import Http
 import Request
+import Route
 
 
 type alias Model =
@@ -106,7 +107,9 @@ viewSelected selected =
                 , Html.footer
                     [ Attributes.class "card-footer" ]
                     [ Html.a 
-                        [ Attributes.class "card-footer-item" ]
+                        [ Attributes.class "card-footer-item" 
+                        , Route.href <| Route.Protected <| Route.Editor document.id
+                        ]
                         [ Html.text "Edit" ]
                     , Html.a 
                         [ Attributes.class "card-footer-item" ]

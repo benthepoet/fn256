@@ -7,6 +7,7 @@ import Html.Events as Events
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Navigation
+import Page.Editor
 import Page.Home
 import Page.LogIn
 import Page.NotFound
@@ -29,7 +30,8 @@ type alias Model =
 
 
 type Msg 
-    = HomeMsg Page.Home.Model Page.Home.Msg
+    = EditorMsg Page.Editor.Model Page.Editor.Msg
+    | HomeMsg Page.Home.Model Page.Home.Msg
     | LoginMsg Page.LogIn.Model Page.LogIn.Msg
     | LogOut
     | ResetPasswordMsg Page.ResetPassword.Model Page.ResetPassword.Msg
@@ -39,6 +41,7 @@ type Msg
 
 type Page
     = Blank
+    | Editor Page.Editor.Model
     | Home Page.Home.Model
     | LogIn Page.LogIn.Model
     | NotFound
@@ -77,6 +80,14 @@ subscriptions model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        EditorMsg subModel subMsg ->
+            let
+                ( pageModel, subCmd ) = Page.Editor.update model.user subMsg subModel
+            in
+                ( { model | page = Editor pageModel }
+                , Cmd.map (EditorMsg pageModel) subCmd
+                )
+    
         HomeMsg subModel subMsg ->
             let
                 ( pageModel, subCmd ) = Page.Home.update model.user subMsg subModel
@@ -130,6 +141,14 @@ update msg model =
 
                         Just user ->
                             case page of
+                                Route.Editor id ->
+                                    let
+                                        ( subModel, subCmd ) = Page.Editor.init id user
+                                    in
+                                        ( { model | page = Editor subModel }
+                                        , Cmd.map (EditorMsg subModel) subCmd
+                                        )
+                            
                                 Route.Home ->
                                     let
                                         ( subModel, subCmd ) = Page.Home.init user

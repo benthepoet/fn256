@@ -8,7 +8,8 @@ import UrlParser exposing ((</>), int, map, oneOf, parseHash, s)
 
 
 type ProtectedRoute
-    = Home
+    = Editor Int
+    | Home
 
 
 type PublicRoute
@@ -26,6 +27,9 @@ type Route
 toPath : Route -> String
 toPath route =
     case route of
+        Protected (Editor id) ->
+            "#/editor/" ++ (toString id)
+    
         Protected Home ->
             "#/"
 
@@ -61,7 +65,8 @@ parse location =
 
 route =
     oneOf
-        [ map (Protected Home) (s "")
+        [ map (Protected << Editor) (s "editor" </> int)
+        , map (Protected Home) (s "")
         , map (Public LogIn) (s "login")
         , map (Public ResetPassword) (s "resetpassword")
         , map (Public SignUp) (s "signup")

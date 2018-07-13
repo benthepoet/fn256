@@ -25,8 +25,8 @@ type Msg
 
 
 init id user = 
-    ( Model Nothing False True
-    , Http.send LoadDocument <| Request.getDocument (Just user.token) id
+    ( Model Loading
+    , Http.send LoadDocument <| Request.getDocument (Just user.token) <| toString id
     )
     
     
@@ -36,10 +36,11 @@ update user msg model =
     in
         case msg of
             LoadDocument result ->
-                ( { model | document = result }
+                ( { model | document = Response result }
                 , Cmd.none
                 )
 
 
 view subModel =
-    Elements.columns []
+    Elements.columns 
+        [ Html.text "Document Loaded" ]
