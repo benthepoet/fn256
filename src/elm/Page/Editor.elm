@@ -42,15 +42,21 @@ update user msg model =
 
 
 view subModel =
-    Html.div
-        [ Attributes.class "columns fill-vert" ]
+    Html.div 
+        [ Attributes.class "flex-1 flex-column" ]
         [ Html.div
-            [ Attributes.class "column toolbox is-narrow w-small has-background-white" ]
             []
+            [ Html.text "My Document" ]
         , Html.div
-            [ Attributes.class "column" ]
-            [ Html.div 
-                [ Attributes.class "mt-4" ]
-                [ Html.text "Document Loaded" ]
+            [ Attributes.class "columns flex-1 mb-0 mt-0" ]
+            [ Html.div
+                [ Attributes.class "column is-narrow w-small has-background-white" ]
+                []
+            , Html.div
+                [ Attributes.class "column" ]
+                [ Html.div 
+                    [ Attributes.class "mt-4" ]
+                    [ Html.text "Document Loaded" ]
+                ]
             ]
         ]

@@ -196,7 +196,7 @@ update msg model =
 frame : Data.User -> Html Msg -> Html Msg
 frame user pageView = 
     Html.div
-        [ Attributes.class "wrapper" ]
+        [ Attributes.class "flex-column h-100-vh" ]
         [ Html.nav
             [ Attributes.class "navbar is-dark" ]
             [ Html.div
