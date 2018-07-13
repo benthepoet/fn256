@@ -38,6 +38,10 @@ html, body {
   padding-left: 1rem;
 }
 
+.pr-0 {
+  padding-right: 0;
+}
+
 .pr-1 {
   padding-right: 1rem;
 }
@@ -97,11 +101,15 @@ html, body {
 
 .icon.tool {
   padding: 1.15rem;
-  margin-left: 0.5rem;
   border-radius: 0.5rem;
   margin-bottom: 0.5rem;
 }
 
 .icon.tool:hover {
   background-color: hsl(0, 0%, 96%);
+}
+
+hr.tool {
+  margin-top: 0.25rem;
+  margin-bottom: 0.75rem;
 }
