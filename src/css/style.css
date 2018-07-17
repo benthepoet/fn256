@@ -99,6 +99,10 @@ html, body {
   flex: 1;
 }
 
+.overflow-y-scroll {
+  overflow-y: scroll;
+}
+
 .icon.tool {
   padding: 1.15rem;
   border-radius: 0.5rem;
