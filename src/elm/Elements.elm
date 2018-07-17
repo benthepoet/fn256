@@ -37,6 +37,18 @@ email attributes =
         []
 
 
+error message = 
+    Html.div 
+        [ Attributes.class "has-text-centered mt-4" ]
+        [ Html.h2
+            [ Attributes.class "subtitle is-2" ]
+            [ Html.text "Error" ]
+        , Html.h4 
+            [ Attributes.class "subtitle is-5" ]
+            [ Html.text message ]
+        ]
+
+
 far icon = 
     Html.i
         [ Attributes.class <| "far fa-" ++ icon ]

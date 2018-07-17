@@ -51,15 +51,7 @@ view subModel =
                 [ Elements.spinner ]
                 
         Response (Err _) ->
-            Html.div 
-                [ Attributes.class "has-text-centered mt-4" ]
-                [ Html.h2
-                    [ Attributes.class "subtitle is-2" ]
-                    [ Html.text "Error" ]
-                , Html.h4 
-                    [ Attributes.class "subtitle is-5" ]
-                    [ Html.text "The requested document could not be loaded." ]
-                ]
+            Elements.error "The requested document could not be loaded."
                 
         Response (Ok document) ->
             let
@@ -107,9 +99,10 @@ view subModel =
                             [ Html.div 
                                 [ Attributes.class "mt-1" ]
                                 [ Svg.svg 
-                                    [ Svg.Attributes.viewBox <| "0 0 " ++ width ++ " " ++ height
-                                    , Svg.Attributes.class "shadow"
-                                    , Svg.Attributes.style <| "width: " ++ width ++ "px; height: " ++ height ++ "px;"
+                                    [ Svg.Attributes.class "shadow"
+                                    , Svg.Attributes.width width
+                                    , Svg.Attributes.height height
+                                    , Svg.Attributes.viewBox <| String.join " " ["0", "0", width, height]
                                     ]
                                     [ Svg.rect
                                         [ Svg.Attributes.x "0" 
