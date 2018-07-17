@@ -26,7 +26,7 @@ type Msg
 
 init id user = 
     ( Model Loading
-    , Http.send LoadDocument <| Request.getDocument (Just user.token) <| toString id
+    , Http.send LoadDocument <| Request.getDocument (Just user.token) id
     )
     
     

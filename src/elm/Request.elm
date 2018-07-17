@@ -32,10 +32,10 @@ createDocument token document =
             }
 
 
-getDocument : Maybe String -> String -> Http.Request Data.Document
+getDocument : Maybe String -> Int -> Http.Request Data.Document
 getDocument token id = 
     let
-        request = get (api <| "/documents/" ++ id) token
+        request = get (api <| (++) "/documents/" <| toString id) token
     in
         Http.request
             { request | expect = Http.expectJson Data.documentDecoder }
