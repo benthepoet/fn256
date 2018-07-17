@@ -108,6 +108,7 @@ view subModel =
                                 [ Attributes.class "mt-1" ]
                                 [ Svg.svg 
                                     [ Svg.Attributes.viewBox <| "0 0 " ++ width ++ " " ++ height
+                                    , Svg.Attributes.class "shadow"
                                     , Svg.Attributes.style <| "width: " ++ width ++ "px; height: " ++ height ++ "px;"
                                     ]
                                     [ Svg.rect

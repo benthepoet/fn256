@@ -26,6 +26,10 @@ html, body {
   box-shadow: 4px 0 4px -2px rgba(0, 0, 0, 0.15);
 }
 
+.shadow {
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.15);
+}
+
 .p-1 {
   padding: 1rem;
 }
