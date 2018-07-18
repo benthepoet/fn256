@@ -5,6 +5,7 @@ import Elements
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
+import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Navigation
@@ -31,7 +32,8 @@ type alias Model =
 
 
 type Msg 
-    = EditorMsg Editor.Model Editor.Msg
+    = EditorLoaded (Result Http.Error Editor.Model)
+    | EditorMsg Editor.Model Editor.Msg
     | HomeMsg Home.Model Home.Msg
     | LoginMsg LogIn.Model LogIn.Msg
     | LogOut
@@ -85,6 +87,14 @@ subscriptions model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        EditorLoaded (Err _) ->
+            ( model, Cmd.none )
+                
+        EditorLoaded (Ok subModel) ->
+            ( { model | page = Loaded <| Editor subModel }
+            , Cmd.none
+            )
+    
         EditorMsg subModel subMsg ->
             let
                 ( pageModel, subCmd ) = Editor.update model.user subMsg subModel
@@ -148,10 +158,10 @@ update msg model =
                             case page of
                                 Route.Editor id ->
                                     let
-                                        ( subModel, subCmd ) = Editor.init id user
+                                        task = Editor.init id user
                                     in
-                                        ( { model | page = Loaded <| Editor subModel }
-                                        , Cmd.map (EditorMsg subModel) subCmd
+                                        ( { model | page = Loading }
+                                        , Task.attempt EditorLoaded task
                                         )
                             
                                 Route.Home ->
