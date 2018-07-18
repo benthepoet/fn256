@@ -13,7 +13,7 @@ root documentId =
 
 list token documentId =
     let
-        url = root documentId
+        url = root <| toString documentId
         request = Api.get url token
     in
         Http.request

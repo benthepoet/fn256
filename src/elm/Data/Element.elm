@@ -31,14 +31,14 @@ decoder =
 
 decodeElement elementType =
     case elementType of
-        0 ->
+        1 ->
             Decode.map Circle 
                 <| Decode.map3 CircleAttributes
                     (Decode.field "x" Decode.int)
                     (Decode.field "y" Decode.int)
                     (Decode.field "radius" Decode.int)
                     
-        1 ->
+        2 ->
             Decode.map Rect
                 <| Decode.map4 RectAttributes
                     (Decode.field "x" Decode.int)

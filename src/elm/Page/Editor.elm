@@ -2,7 +2,7 @@ module Page.Editor exposing (..)
 
 
 import Data.Document exposing (Document)
-import Data.Element exposing (Element)
+import Data.Element as Element exposing (Element)
 import Elements
 import Html
 import Html.Attributes as Attributes
@@ -17,6 +17,7 @@ import Task
 
 type alias Model =
     { document : Document
+    , elements : List Element
     }
 
 
@@ -25,9 +26,12 @@ type Msg
 
 
 init id user = 
-    Task.map Model 
-        (Http.toTask <| Request.Document.get (Just user.token) id)
-
+    let
+        token = Just user.token
+    in
+        Task.map2 Model 
+            (Http.toTask <| Request.Document.get token id)
+            (Http.toTask <| Request.Element.list token id)
 
 update user msg model =
     let
@@ -38,7 +42,37 @@ update user msg model =
                 ( model, Cmd.none )
 
 
-view { document } =
+viewCanvas =
+    Svg.rect
+        [ Svg.Attributes.x "0" 
+        , Svg.Attributes.y "0" 
+        , Svg.Attributes.width "100%"
+        , Svg.Attributes.height "100%"
+        , Svg.Attributes.fill "#fff"
+        ]
+        []
+
+
+viewElement element =
+    case element of
+        Element.Circle attributes ->
+            Svg.circle
+                [ Svg.Attributes.cx <| toString attributes.x 
+                , Svg.Attributes.cy <| toString attributes.y 
+                , Svg.Attributes.r <| toString attributes.radius
+                ]
+                []
+
+        Element.Rect attributes ->
+            Svg.rect
+                [ Svg.Attributes.x <| toString attributes.x 
+                , Svg.Attributes.y <| toString attributes.y 
+                , Svg.Attributes.width <| toString attributes.width
+                , Svg.Attributes.height <| toString attributes.height
+                ]
+                []
+
+view { document, elements } =
     let
         width = toString document.width
         height = toString document.height
@@ -89,15 +123,7 @@ view { document } =
                             , Svg.Attributes.height height
                             , Svg.Attributes.viewBox <| String.join " " ["0", "0", width, height]
                             ]
-                            [ Svg.rect
-                                [ Svg.Attributes.x "0" 
-                                , Svg.Attributes.y "0" 
-                                , Svg.Attributes.width "100%"
-                                , Svg.Attributes.height "100%"
-                                , Svg.Attributes.fill "#fff"
-                                ]
-                                []
-                            ]
+                            (viewCanvas :: List.map viewElement elements)
                         ]
                     ]
                 ]
