@@ -25,7 +25,8 @@ create token document =
 get : Maybe String -> Int -> Http.Request Document
 get token id = 
     let
-        request = Api.get (String.join "/" [root, toString id]) token
+        url = String.join "/" [root, toString id]
+        request = Api.get url token
     in
         Http.request
             { request | expect = Http.expectJson Document.decoder }
@@ -48,7 +49,8 @@ list token params =
 update : Maybe String -> Document -> Http.Request Document
 update token document =
     let
-        request = Api.put (String.join "/" [root, toString document.id]) token
+        url = String.join "/" [root, toString document.id]
+        request = Api.put url token
     in
         Http.request
             { request

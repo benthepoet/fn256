@@ -7,10 +7,14 @@ import Json.Encode as Encode
 import Request.Api as Api
 
 
+root = "/auth"
+
+
 login : String -> String -> Http.Request User
 login email password =
     let
-        request = Api.post "/auth/login" Nothing
+        url = String.join "/" [root, "login"]
+        request = Api.post url Nothing
     in
         Http.request
             { request
@@ -22,7 +26,8 @@ login email password =
 signUp : String -> String -> Http.Request ()
 signUp email password =
     let
-        request = Api.post "/auth/signup" Nothing
+        url = String.join "/" [root, "signup"]
+        request = Api.post url Nothing
     in
         Http.request
             { request 
