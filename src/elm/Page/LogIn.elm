@@ -7,7 +7,7 @@ import Html
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Http
-import Request
+import Request.Auth as Auth
 import Route
 
 
@@ -69,7 +69,7 @@ update msg model =
             ( { model 
                 | isError = False
                 , isLoading = True }
-            , Http.send LoginResponse <| Request.login model.email model.password 
+            , Http.send LoginResponse <| Auth.login model.email model.password 
             , NoOp
             )
 

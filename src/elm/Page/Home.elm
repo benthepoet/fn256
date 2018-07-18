@@ -1,33 +1,33 @@
 module Page.Home exposing (..)
 
 
-import Data
+import Data.Document exposing (Document)
 import Elements
 import Html
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Http
-import Request
+import Request.Document
 import Route
 
 
 type alias Model =
-    { documents : List Data.Document
+    { documents : List Document
     , isError : Bool
     , isLoading : Bool
-    , selected : Maybe Data.Document
+    , selected : Maybe Document
     }
 
 
 type Msg
-    = LoadDocuments (Result Http.Error (List Data.Document))
+    = LoadDocuments (Result Http.Error (List Document))
     | Search String
-    | Select Data.Document
+    | Select Document
 
 
 init user = 
     ( Model [] False True Nothing
-    , Http.send LoadDocuments <| Request.getDocuments (Just user.token) []
+    , Http.send LoadDocuments <| Request.Document.list (Just user.token) []
     )
     
     
@@ -56,7 +56,7 @@ update user msg model =
             Search search ->
                 ( model
                 , Http.send LoadDocuments 
-                    <| Request.getDocuments token 
+                    <| Request.Document.list token 
                         [ ("search", search) ]
                 )
                 

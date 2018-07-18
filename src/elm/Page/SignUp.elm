@@ -6,7 +6,7 @@ import Html
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Http
-import Request
+import Request.Auth as Auth
 import Route
 
 
@@ -51,7 +51,7 @@ update msg model =
             ( { model 
                 | isError = False
                 , isLoading = True }
-            , Http.send SignUpResponse <| Request.signUp model.email model.password 
+            , Http.send SignUpResponse <| Auth.signUp model.email model.password 
             )
         
         TypeConfirmPassword confirmPassword ->

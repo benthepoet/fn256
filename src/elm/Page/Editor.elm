@@ -1,20 +1,20 @@
 module Page.Editor exposing (..)
 
 
-import Data
+import Data.Document exposing (Document)
 import Elements
 import Html
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Http
-import Request
+import Request.Document
 import Svg
 import Svg.Attributes
 
 
 type DocumentState
     = Loading
-    | Response (Result Http.Error Data.Document)
+    | Response (Result Http.Error Document)
 
 
 type alias Model =
@@ -23,12 +23,12 @@ type alias Model =
 
 
 type Msg
-    = LoadDocument (Result Http.Error Data.Document)
+    = LoadDocument (Result Http.Error Document)
 
 
 init id user = 
     ( Model Loading
-    , Http.send LoadDocument <| Request.getDocument (Just user.token) id
+    , Http.send LoadDocument <| Request.Document.get (Just user.token) id
     )
     
     
