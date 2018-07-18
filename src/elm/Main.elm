@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Data
+import Data.User exposing (User)
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
@@ -25,7 +25,7 @@ type alias Flags =
 
 type alias Model =
     { page : Page
-    , user : Maybe Data.User
+    , user : Maybe User
     }
 
 
@@ -64,7 +64,7 @@ init flags location =
     let
         route = Route.parse location
         user = flags.user
-            |> Decode.decodeValue Data.userDecoder 
+            |> Decode.decodeValue Data.User.decoder 
             |> Result.toMaybe
     in
         ( Model Blank user  
@@ -108,7 +108,7 @@ update msg model =
                             ( { model | user = Just user }
                             , Cmd.batch 
                                 [ Route.navigateTo <| Route.Protected Route.Home
-                                , Ports.syncUser <| Data.userEncoder user
+                                , Ports.syncUser <| Data.User.encoder user
                                 ]
                             )
             in
@@ -193,7 +193,7 @@ update msg model =
                 )
 
 
-frame : Data.User -> Html Msg -> Html Msg
+frame : User -> Html Msg -> Html Msg
 frame user pageView = 
     Html.div
         [ Attributes.class "flex-column h-100-vh" ]

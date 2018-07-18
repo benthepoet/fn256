@@ -1,7 +1,7 @@
 module Page.LogIn exposing (..)
 
 
-import Data
+import Data.User exposing (User)
 import Elements
 import Html
 import Html.Attributes as Attributes
@@ -20,7 +20,7 @@ type alias Model =
 
 
 type Msg
-    = LoginResponse (Result Http.Error Data.User)
+    = LoginResponse (Result Http.Error User)
     | Submit
     | TypeEmail String
     | TypePassword String
@@ -28,7 +28,7 @@ type Msg
 
 type OutMsg
     = NoOp
-    | SetUser Data.User
+    | SetUser User
     
 
 init = 

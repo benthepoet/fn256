@@ -1,6 +1,6 @@
 module Request.Api exposing (..)
 
-import Data
+
 import Http
 import Json.Decode as Decode
 

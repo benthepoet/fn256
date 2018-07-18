@@ -1,4 +1,4 @@
-module Data exposing (..)
+module Data.User exposing (..)
 
 
 import Json.Decode as Decode
@@ -11,20 +11,13 @@ type alias User =
     }
 
 
-loginEncoder email password =
-    Encode.object
-        [ ( "email", Encode.string email )
-        , ( "password", Encode.string password )
-        ]
-
-
-userDecoder =
+decoder =
     Decode.map2 User
         (Decode.field "email" Decode.string)
         (Decode.field "token" Decode.string)
         
         
-userEncoder user =
+encoder user =
     Encode.object
         [ ( "email", Encode.string user.email )
         , ( "token", Encode.string user.token )
