@@ -2,12 +2,14 @@ module Page.Editor exposing (..)
 
 
 import Data.Document exposing (Document)
+import Data.Element exposing (Element)
 import Elements
 import Html
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Http
 import Request.Document
+import Request.Element
 import Svg
 import Svg.Attributes
 
