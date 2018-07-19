@@ -90,6 +90,10 @@ html, body {
   margin-right: 1rem;
 }
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
 .panel.has-background-white {
   border-radius: 4px 4px 0 0;
 }

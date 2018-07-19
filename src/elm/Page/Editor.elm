@@ -1,6 +1,7 @@
 module Page.Editor exposing (..)
 
 
+import Array exposing (Array)
 import Data.Document exposing (Document)
 import Data.Element as Element exposing (Element)
 import Elements
@@ -18,7 +19,8 @@ import Task
 
 
 type alias DragEvent =
-    { target : Element
+    { index : Int
+    , target : Element
     , dx : Int
     , dy : Int
     }
@@ -27,12 +29,12 @@ type alias DragEvent =
 type alias Model =
     { dragging : Maybe DragEvent
     , document : Document
-    , elements : List Element
+    , elements : Array Element
     }
 
 
 type Msg
-    = MouseDown Element Int Int
+    = MouseDown Int Element Int Int
     | MouseMove Int Int
     | MouseUp
 
@@ -43,33 +45,36 @@ init id user =
     in
         Task.map2 (Model Nothing) 
             (Http.toTask <| Request.Document.get token id)
-            (Http.toTask <| Request.Element.list token id)
+            (Task.map Array.fromList <| Http.toTask <| Request.Element.list token id)
 
 update user msg model =
     let
         token = Maybe.map .token user
     in
-        case Debug.log "editor" msg of
-            MouseDown target x y ->
-                ( { model | dragging = Just <| DragEvent target x y }
+        case msg of
+            MouseDown index target x y ->
+                ( { model | dragging = Debug.log "down" <| Just <| DragEvent index target x y }
                 , Cmd.none
                 )
                 
             MouseMove x y ->
-                case model.dragging of
+                case Debug.log "move" model.dragging of
                     Nothing ->
                         ( model, Cmd.none )
                     
-                    Just { target, dx, dy } ->
+                    Just { index, target, dx, dy } ->
                         case target of
                             Element.Circle attributes ->
                                 let
                                     circle = Element.Circle { attributes 
-                                                    | y = x - dx + attributes.y
+                                                    | x = x - dx + attributes.x
                                                     , y = y - dy + attributes.y
                                                 }
                                 in
-                                    ( { model | dragging = Just <| DragEvent circle x y }
+                                    ( { model 
+                                        | dragging = Just <| DragEvent index circle x y 
+                                        , elements = Array.set index circle model.elements
+                                        }
                                     , Cmd.none
                                     )
                                     
@@ -80,12 +85,15 @@ update user msg model =
                                                 , y = y - dy + attributes.y
                                                 }
                                 in
-                                    ( { model | dragging = Just <| DragEvent rect x y }
+                                    ( { model 
+                                        | dragging = Just <| DragEvent index rect x y 
+                                        , elements = Array.set index rect model.elements
+                                        }
                                     , Cmd.none
                                     )
                 
             MouseUp ->
-                ( { model | dragging = Nothing }
+                ( { model | dragging = Debug.log "up" Nothing }
                 , Cmd.none
                 )
 
@@ -101,14 +109,15 @@ viewCanvas =
         []
 
 
-viewElement element =
+viewElement index element =
     case element of
         Element.Circle attributes ->
             Svg.circle
                 [ Svg.Attributes.cx <| toString attributes.x 
                 , Svg.Attributes.cy <| toString attributes.y 
                 , Svg.Attributes.r <| toString attributes.radius
-                , onMouseDown <| MouseDown element
+                , Svg.Attributes.class "cursor-pointer"
+                , onMouseDown <| MouseDown index element
                 ]
                 []
 
@@ -118,7 +127,8 @@ viewElement element =
                 , Svg.Attributes.y <| toString attributes.y 
                 , Svg.Attributes.width <| toString attributes.width
                 , Svg.Attributes.height <| toString attributes.height
-                , onMouseDown <| MouseDown element
+                , Svg.Attributes.class "cursor-pointer"
+                , onMouseDown <| MouseDown index element
                 ]
                 []
 
@@ -175,7 +185,7 @@ view { document, elements } =
                             , onMouseMove MouseMove
                             , Svg.Events.onMouseUp MouseUp
                             ]
-                            (viewCanvas :: List.map viewElement elements)
+                            (viewCanvas :: (Array.toList <| Array.indexedMap viewElement elements))
                         ]
                     ]
                 ]
