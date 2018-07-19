@@ -53,12 +53,12 @@ update user msg model =
     in
         case msg of
             MouseDown index target x y ->
-                ( { model | dragging = Debug.log "down" <| Just <| DragEvent index target x y }
+                ( { model | dragging = Just <| DragEvent index target x y }
                 , Cmd.none
                 )
                 
             MouseMove x y ->
-                case Debug.log "move" model.dragging of
+                case model.dragging of
                     Nothing ->
                         ( model, Cmd.none )
                     
@@ -93,7 +93,7 @@ update user msg model =
                                     )
                 
             MouseUp ->
-                ( { model | dragging = Debug.log "up" Nothing }
+                ( { model | dragging = Nothing }
                 , Cmd.none
                 )
 
@@ -178,14 +178,15 @@ view { document, elements } =
                     [ Html.div 
                         [ Attributes.class "mt-1" ]
                         [ Svg.svg 
-                            [ Svg.Attributes.class "shadow"
+                            [ Svg.Attributes.class "shadow has-background-white"
                             , Svg.Attributes.width width
                             , Svg.Attributes.height height
                             , Svg.Attributes.viewBox <| String.join " " ["0", "0", width, height]
                             , onMouseMove MouseMove
                             , Svg.Events.onMouseUp MouseUp
                             ]
-                            (viewCanvas :: (Array.toList <| Array.indexedMap viewElement elements))
+                            <| Array.toList 
+                            <| Array.indexedMap viewElement elements
                         ]
                     ]
                 ]
