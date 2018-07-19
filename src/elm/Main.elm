@@ -33,7 +33,7 @@ type alias Model =
 
 type Msg 
     = EditorLoaded (Result Http.Error Editor.Model)
-    | EditorMsg Editor.Model Editor.Msg
+    | EditorMsg Editor.Msg
     | HomeMsg Home.Model Home.Msg
     | LoginMsg LogIn.Model LogIn.Msg
     | LogOut
@@ -95,13 +95,18 @@ update msg model =
             , Cmd.none
             )
     
-        EditorMsg subModel subMsg ->
-            let
-                ( pageModel, subCmd ) = Editor.update model.user subMsg subModel
-            in
-                ( { model | page = Loaded <| Editor pageModel }
-                , Cmd.map (EditorMsg pageModel) subCmd
-                )
+        EditorMsg subMsg ->
+            case model.page of
+                Loaded (Editor subModel) ->
+                    let
+                        ( pageModel, subCmd ) = Editor.update model.user subMsg subModel
+                    in
+                        ( { model | page = Loaded <| Editor pageModel }
+                        , Cmd.map EditorMsg subCmd
+                        )
+                
+                _ ->
+                    ( model, Cmd.none )
     
         HomeMsg subModel subMsg ->
             let
@@ -261,7 +266,7 @@ view model =
     case (model.page, model.user) of
         (Loaded (Editor subModel), Just user) ->
             Editor.view subModel
-                |> Html.map (EditorMsg subModel)
+                |> Html.map EditorMsg
                 |> frame user
     
         (Loaded (Home subModel), Just user) ->
