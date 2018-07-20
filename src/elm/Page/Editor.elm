@@ -27,30 +27,50 @@ type alias DragEvent =
 
 type alias Model =
     { dragging : Maybe DragEvent
+    , status : Status
     , document : Document
     , elements : Array Element
     }
 
 
 type Msg
-    = MouseDown Int Int Int
+    = ElementUpdated (Result Http.Error Element)
+    | MouseDown Int Int Int
     | MouseMove Int Int
     | MouseUp
+
+
+type Status
+    = Error
+    | Saved
+    | Syncing
 
 
 init id user = 
     let
         token = Just user.token
     in
-        Task.map2 (Model Nothing) 
+        Task.map2 (Model Nothing Saved) 
             (Http.toTask <| Request.Document.get token id)
             (Task.map Array.fromList <| Http.toTask <| Request.Element.list token id)
 
 update user msg model =
     let
+        getElement = model.elements |> flip Array.get
+        getTarget = Maybe.andThen <| getElement << .index
         token = Maybe.map .token user
     in
         case msg of
+            ElementUpdated (Err _) ->
+                ( { model | status = Error }
+                , Cmd.none 
+                )
+        
+            ElementUpdated (Ok element) ->
+                ( { model | status = Saved }
+                , Cmd.none
+                )
+        
             MouseDown index x y ->
                 ( { model | dragging = Just <| DragEvent index x y }
                 , Cmd.none
@@ -77,8 +97,6 @@ update user msg model =
                                     , y = y - dy + attributes.y
                                     }
                                 )
-                                    
-                    getTarget = Maybe.andThen ((model.elements |> flip Array.get) << .index)
                 in
                     case Maybe.map2 updatePosition model.dragging <| getTarget model.dragging of
                         Nothing ->
@@ -93,9 +111,20 @@ update user msg model =
                             )
                 
             MouseUp ->
-                ( { model | dragging = Nothing }
-                , Cmd.none
-                )
+                case getTarget model.dragging of
+                    Nothing ->
+                        ( { model | dragging = Nothing }
+                        , Cmd.none 
+                        )
+                        
+                    Just element ->
+                        ( { model 
+                            | dragging = Nothing 
+                            , status = Syncing
+                            }
+                        , Http.send ElementUpdated 
+                            <| Request.Element.update token model.document element
+                        )
 
 
 viewElement index element =
@@ -127,10 +156,20 @@ viewElement index element =
                     )
                     []
 
-view { document, elements } =
+view { document, elements, status } =
     let
         width = toString document.width
         height = toString document.height
+        ( statusIcon, statusMessage ) =
+            case status of
+                Error ->
+                    ("exclamation-triangle", "Error") 
+            
+                Saved ->
+                    ("check-circle", "Saved")
+
+                Syncing ->
+                    ("spinner fa-pulse", "Syncing")
     in
         Html.div 
             [ Attributes.class "flex-1 flex-column" ]
@@ -142,6 +181,13 @@ view { document, elements } =
                 , Html.span
                     [ Attributes.class "has-text-white has-text-semi-bold" ]
                     [ Html.text document.name ]
+                , Html.span
+                    [ Attributes.class "is-pulled-right" ]
+                    [ Html.text statusMessage
+                    , Html.span
+                        [ Attributes.class "icon pl-1 pr-1" ]
+                        [ Elements.fas statusIcon ]
+                    ]
                 ]
             , Html.div
                 [ Attributes.class "columns flex-1 mb-0 mt-0" ]
