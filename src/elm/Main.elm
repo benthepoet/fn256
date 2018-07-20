@@ -210,6 +210,7 @@ update msg model =
         _ ->
             ( model, Cmd.none )
 
+
 frame : User -> Html Msg -> Html Msg
 frame user pageView = 
     Html.div
@@ -258,6 +259,7 @@ frame user pageView =
         ]
 
 
+viewLoading : Html Msg
 viewLoading =
     Html.div
         [ Attributes.class "has-text-centered mt-3" ]

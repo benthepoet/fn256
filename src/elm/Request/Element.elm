@@ -8,13 +8,19 @@ import Request.Api as Api
 import Request.Document
 
 
+root : Int -> String
 root documentId =
-    String.join "/" [Request.Document.root, documentId, "elements"]
+    String.join "/" 
+        [ Request.Document.root
+        , toString documentId
+        , "elements"
+        ]
 
 
+list : Maybe String -> Int -> Http.Request (List Element)
 list token documentId =
     let
-        url = root <| toString documentId
+        url = root documentId
         request = Api.get url token
     in
         Http.request
@@ -28,7 +34,7 @@ list token documentId =
 update : Maybe String -> Document -> Element -> Http.Request Element
 update token document element =
     let
-        url = String.join "/" [root <| toString document.id, toString element.id]
+        url = String.join "/" [root document.id, toString element.id]
         request = Api.put url token
     in
         Http.request
