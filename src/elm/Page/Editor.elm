@@ -7,7 +7,6 @@ import Data.Element as Element exposing (Element)
 import Elements
 import Html
 import Html.Attributes as Attributes
-import Html.Events as Events
 import Http
 import Json.Decode as Decode
 import Request.Document
@@ -63,34 +62,29 @@ update user msg model =
                         ( model, Cmd.none )
                     
                     Just { index, target, dx, dy } ->
-                        case target of
-                            Element.Circle attributes ->
-                                let
-                                    circle = Element.Circle { attributes 
-                                                    | x = x - dx + attributes.x
-                                                    , y = y - dy + attributes.y
-                                                }
-                                in
-                                    ( { model 
-                                        | dragging = Just <| DragEvent index circle x y 
-                                        , elements = Array.set index circle model.elements
-                                        }
-                                    , Cmd.none
-                                    )
-                                    
-                            Element.Rect attributes ->
-                                let
-                                    rect = Element.Rect { attributes
-                                                | x = x - dx + attributes.x
-                                                , y = y - dy + attributes.y
-                                                }
-                                in
-                                    ( { model 
-                                        | dragging = Just <| DragEvent index rect x y 
-                                        , elements = Array.set index rect model.elements
-                                        }
-                                    , Cmd.none
-                                    )
+                        let
+                            element = 
+                                case target of
+                                    Element.Circle attributes ->
+                                        Element.Circle 
+                                            { attributes 
+                                            | x = x - dx + attributes.x
+                                            , y = y - dy + attributes.y
+                                            }
+                                            
+                                    Element.Rect attributes ->
+                                        Element.Rect 
+                                            { attributes
+                                            | x = x - dx + attributes.x
+                                            , y = y - dy + attributes.y
+                                            }
+                        in
+                            ( { model 
+                                | dragging = Just <| DragEvent index element x y 
+                                , elements = Array.set index element model.elements
+                                }
+                            , Cmd.none
+                            )
                 
             MouseUp ->
                 ( { model | dragging = Nothing }
@@ -98,39 +92,34 @@ update user msg model =
                 )
 
 
-viewCanvas =
-    Svg.rect
-        [ Svg.Attributes.x "0" 
-        , Svg.Attributes.y "0" 
-        , Svg.Attributes.width "100%"
-        , Svg.Attributes.height "100%"
-        , Svg.Attributes.fill "#fff"
-        ]
-        []
-
-
 viewElement index element =
-    case element of
-        Element.Circle attributes ->
-            Svg.circle
-                [ Svg.Attributes.cx <| toString attributes.x 
-                , Svg.Attributes.cy <| toString attributes.y 
-                , Svg.Attributes.r <| toString attributes.radius
-                , Svg.Attributes.class "cursor-pointer"
-                , onMouseDown <| MouseDown index element
-                ]
-                []
-
-        Element.Rect attributes ->
-            Svg.rect
-                [ Svg.Attributes.x <| toString attributes.x 
-                , Svg.Attributes.y <| toString attributes.y 
-                , Svg.Attributes.width <| toString attributes.width
-                , Svg.Attributes.height <| toString attributes.height
-                , Svg.Attributes.class "cursor-pointer"
-                , onMouseDown <| MouseDown index element
-                ]
-                []
+    let
+        sharedAttributes =
+            [ Svg.Attributes.class "cursor-pointer"
+            , onMouseDown <| MouseDown index element
+            ]
+    in
+        case element of
+            Element.Circle attributes ->
+                Svg.circle
+                    ( sharedAttributes ++ 
+                        [ Svg.Attributes.cx <| toString attributes.x 
+                        , Svg.Attributes.cy <| toString attributes.y 
+                        , Svg.Attributes.r <| toString attributes.radius
+                        ]
+                    )
+                    []
+    
+            Element.Rect attributes ->
+                Svg.rect
+                    ( sharedAttributes ++
+                        [ Svg.Attributes.x <| toString attributes.x 
+                        , Svg.Attributes.y <| toString attributes.y 
+                        , Svg.Attributes.width <| toString attributes.width
+                        , Svg.Attributes.height <| toString attributes.height
+                        ]
+                    )
+                    []
 
 view { document, elements } =
     let
@@ -191,7 +180,8 @@ view { document, elements } =
                     ]
                 ]
             ]
-    
+
+
 mousePositionDecoder msg =
     Decode.map2 msg 
         (Decode.field "clientX" Decode.int)
