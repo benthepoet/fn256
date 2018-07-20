@@ -5,6 +5,7 @@ import Array exposing (Array)
 import Data.Document exposing (Document)
 import Data.Element as Element exposing (Element)
 import Elements
+import Events.Svg
 import Html
 import Html.Attributes as Attributes
 import Http
@@ -96,7 +97,7 @@ viewElement index element =
     let
         sharedAttributes =
             [ Svg.Attributes.class "cursor-pointer"
-            , onMouseDown <| MouseDown index element
+            , Events.Svg.onMouseDown <| MouseDown index element
             ]
     in
         case element of
@@ -171,7 +172,7 @@ view { document, elements } =
                             , Svg.Attributes.width width
                             , Svg.Attributes.height height
                             , Svg.Attributes.viewBox <| String.join " " ["0", "0", width, height]
-                            , onMouseMove MouseMove
+                            , Events.Svg.onMouseMove MouseMove
                             , Svg.Events.onMouseUp MouseUp
                             ]
                             <| Array.toList 
@@ -180,17 +181,3 @@ view { document, elements } =
                     ]
                 ]
             ]
-
-
-mousePositionDecoder msg =
-    Decode.map2 msg 
-        (Decode.field "clientX" Decode.int)
-        (Decode.field "clientY" Decode.int)
-        
-        
-onMouseDown msg =
-    Svg.Events.on "mousedown" <| mousePositionDecoder msg
-            
-            
-onMouseMove msg =
-    Svg.Events.on "mousemove" <| mousePositionDecoder msg
