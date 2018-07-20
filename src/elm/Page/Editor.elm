@@ -57,40 +57,40 @@ update user msg model =
                 )
                 
             MouseMove x y ->
-                case model.dragging of
-                    Nothing ->
-                        ( model, Cmd.none )
-                    
-                    Just { index, dx, dy } ->
-                        case Array.get index model.elements of
-                            Nothing ->
-                                ( model, Cmd.none )
-                        
-                            Just target ->
-                                let
-                                    element =
-                                        case target of
-                                            Element.Circle attributes ->
-                                                Element.Circle 
-                                                    { attributes 
-                                                    | x = x - dx + attributes.x
-                                                    , y = y - dy + attributes.y
-                                                    }
-                                                    
-                                            Element.Rect attributes ->
-                                                Element.Rect 
-                                                    { attributes
-                                                    | x = x - dx + attributes.x
-                                                    , y = y - dy + attributes.y
-                                                    }
-                                
-                                in
-                                    ( { model 
-                                        | dragging = Just <| DragEvent index x y 
-                                        , elements = Array.set index element model.elements
-                                        }
-                                    , Cmd.none
-                                    )
+                let
+                    updatePosition { index, dx, dy } element =
+                        case element of
+                            Element.Circle attributes ->
+                                ( index
+                                , Element.Circle 
+                                    { attributes 
+                                    | x = x - dx + attributes.x
+                                    , y = y - dy + attributes.y
+                                    }
+                                )
+                                    
+                            Element.Rect attributes ->
+                                ( index
+                                , Element.Rect 
+                                    { attributes
+                                    | x = x - dx + attributes.x
+                                    , y = y - dy + attributes.y
+                                    }
+                                )
+                                    
+                    getTarget = Maybe.andThen ((model.elements |> flip Array.get) << .index)
+                in
+                    case Maybe.map2 updatePosition model.dragging <| getTarget model.dragging of
+                        Nothing ->
+                            ( model, Cmd.none)
+                            
+                        Just (index, element) ->
+                            ( { model 
+                                | dragging = Just <| DragEvent index x y 
+                                , elements = Array.set index element model.elements
+                                }
+                            , Cmd.none
+                            )
                 
             MouseUp ->
                 ( { model | dragging = Nothing }
