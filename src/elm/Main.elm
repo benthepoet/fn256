@@ -34,12 +34,12 @@ type alias Model =
 type Msg 
     = EditorLoaded (Result Http.Error Editor.Model)
     | EditorMsg Editor.Msg
-    | HomeMsg Home.Model Home.Msg
-    | LoginMsg LogIn.Model LogIn.Msg
+    | HomeMsg Home.Msg
+    | LogInMsg LogIn.Msg
     | LogOut
-    | ResetPasswordMsg ResetPassword.Model ResetPassword.Msg
+    | ResetPasswordMsg ResetPassword.Msg
     | RouteChange Route.Route
-    | SignUpMsg SignUp.Model SignUp.Msg
+    | SignUpMsg SignUp.Msg
 
 
 type Page
@@ -86,37 +86,32 @@ subscriptions model =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
-        EditorLoaded (Err _) ->
+    case ( msg, model.page ) of
+        (EditorLoaded (Err _), _) ->
             ( model, Cmd.none )
                 
-        EditorLoaded (Ok subModel) ->
+        (EditorLoaded (Ok subModel), _) ->
             ( { model | page = Loaded <| Editor subModel }
             , Cmd.none
             )
     
-        EditorMsg subMsg ->
-            case model.page of
-                Loaded (Editor subModel) ->
-                    let
-                        ( pageModel, subCmd ) = Editor.update model.user subMsg subModel
-                    in
-                        ( { model | page = Loaded <| Editor pageModel }
-                        , Cmd.map EditorMsg subCmd
-                        )
-                
-                _ ->
-                    ( model, Cmd.none )
-    
-        HomeMsg subModel subMsg ->
+        (EditorMsg subMsg, Loaded (Editor subModel)) ->
+            let
+                ( pageModel, subCmd ) = Editor.update model.user subMsg subModel
+            in
+                ( { model | page = Loaded <| Editor pageModel }
+                , Cmd.map EditorMsg subCmd
+                )
+        
+        (HomeMsg subMsg, Loaded (Home subModel)) ->
             let
                 ( pageModel, subCmd ) = Home.update model.user subMsg subModel
             in
                 ( { model | page = Loaded <| Home pageModel }
-                , Cmd.map (HomeMsg pageModel) subCmd
+                , Cmd.map HomeMsg subCmd
                 )
     
-        LoginMsg subModel subMsg ->
+        (LogInMsg subMsg, Loaded (LogIn subModel)) ->
             let
                 ( pageModel, subCmd, outCmd ) = LogIn.update subMsg subModel
                 ( newModel, cmd ) = 
@@ -134,12 +129,12 @@ update msg model =
             in
                 ( { newModel | page = Loaded <| LogIn pageModel }
                 , Cmd.batch 
-                    [ Cmd.map (LoginMsg pageModel) subCmd
+                    [ Cmd.map LogInMsg subCmd
                     , cmd
                     ]
                 )
                 
-        LogOut ->
+        (LogOut, _) ->
             ( { model | user = Nothing }
             , Cmd.batch
                 [ Route.navigateTo <| Route.Public Route.LogIn
@@ -147,12 +142,12 @@ update msg model =
                 ]
             )
             
-        ResetPasswordMsg subModel subMsg ->
+        (ResetPasswordMsg subMsg, Loaded (ResetPassword subModel)) ->
             ( { model | page = Loaded <| ResetPassword <| ResetPassword.update subMsg subModel }
             , Cmd.none
             )
     
-        RouteChange route ->
+        (RouteChange route, _) ->
             case route of
                 Route.Protected page ->
                     case model.user of
@@ -174,7 +169,7 @@ update msg model =
                                         ( subModel, subCmd ) = Home.init user
                                     in
                                         ( { model | page = Loaded <| Home subModel }
-                                        , Cmd.map (HomeMsg subModel) subCmd
+                                        , Cmd.map HomeMsg subCmd
                                         )
 
                 Route.Public page ->
@@ -204,14 +199,16 @@ update msg model =
                         Just _ ->
                             ( model, Route.navigateTo <| Route.Protected Route.Home )
 
-        SignUpMsg subModel subMsg ->
+        (SignUpMsg subMsg, Loaded (SignUp subModel)) ->
             let
                 ( pageModel, subCmd ) = SignUp.update subMsg subModel
             in
                 ( { model | page = Loaded <| SignUp pageModel }
-                , Cmd.map (SignUpMsg pageModel) subCmd
+                , Cmd.map SignUpMsg subCmd
                 )
 
+        _ ->
+            ( model, Cmd.none )
 
 frame : User -> Html Msg -> Html Msg
 frame user pageView = 
@@ -261,6 +258,12 @@ frame user pageView =
         ]
 
 
+viewLoading =
+    Html.div
+        [ Attributes.class "has-text-centered mt-3" ]
+        [ Elements.spinner ]
+
+
 view : Model -> Html Msg
 view model =
     case (model.page, model.user) of
@@ -271,25 +274,27 @@ view model =
     
         (Loaded (Home subModel), Just user) ->
             Home.view subModel
-                |> Html.map (HomeMsg subModel)
+                |> Html.map HomeMsg
                 |> frame user
             
         (Loaded (LogIn subModel), Nothing) ->
             LogIn.view subModel
-                |> Html.map (LoginMsg subModel)  
+                |> Html.map LogInMsg  
             
         (Loaded NotFound, Nothing) ->
             NotFound.view
             
         (Loaded (ResetPassword subModel), Nothing) ->
             ResetPassword.view
-                |> Html.map (ResetPasswordMsg subModel)
+                |> Html.map ResetPasswordMsg
             
         (Loaded (SignUp subModel), Nothing) ->
             SignUp.view subModel
-                |> Html.map (SignUpMsg subModel)
+                |> Html.map SignUpMsg
+            
+        (Loading, Just user) ->
+            viewLoading
+                |> frame user
                 
         _ ->
-            Html.div
-                [ Attributes.class "has-text-centered mt-3" ]
-                [ Elements.spinner ]
+            viewLoading
