@@ -20,7 +20,6 @@ import Task
 
 type alias DragEvent =
     { index : Int
-    , target : Element
     , dx : Int
     , dy : Int
     }
@@ -34,7 +33,7 @@ type alias Model =
 
 
 type Msg
-    = MouseDown Int Element Int Int
+    = MouseDown Int Int Int
     | MouseMove Int Int
     | MouseUp
 
@@ -52,8 +51,8 @@ update user msg model =
         token = Maybe.map .token user
     in
         case msg of
-            MouseDown index target x y ->
-                ( { model | dragging = Just <| DragEvent index target x y }
+            MouseDown index x y ->
+                ( { model | dragging = Just <| DragEvent index x y }
                 , Cmd.none
                 )
                 
@@ -62,30 +61,36 @@ update user msg model =
                     Nothing ->
                         ( model, Cmd.none )
                     
-                    Just { index, target, dx, dy } ->
-                        let
-                            element = 
-                                case target of
-                                    Element.Circle attributes ->
-                                        Element.Circle 
-                                            { attributes 
-                                            | x = x - dx + attributes.x
-                                            , y = y - dy + attributes.y
-                                            }
-                                            
-                                    Element.Rect attributes ->
-                                        Element.Rect 
-                                            { attributes
-                                            | x = x - dx + attributes.x
-                                            , y = y - dy + attributes.y
-                                            }
-                        in
-                            ( { model 
-                                | dragging = Just <| DragEvent index element x y 
-                                , elements = Array.set index element model.elements
-                                }
-                            , Cmd.none
-                            )
+                    Just { index, dx, dy } ->
+                        case Array.get index model.elements of
+                            Nothing ->
+                                ( model, Cmd.none )
+                        
+                            Just target ->
+                                let
+                                    element =
+                                        case target of
+                                            Element.Circle attributes ->
+                                                Element.Circle 
+                                                    { attributes 
+                                                    | x = x - dx + attributes.x
+                                                    , y = y - dy + attributes.y
+                                                    }
+                                                    
+                                            Element.Rect attributes ->
+                                                Element.Rect 
+                                                    { attributes
+                                                    | x = x - dx + attributes.x
+                                                    , y = y - dy + attributes.y
+                                                    }
+                                
+                                in
+                                    ( { model 
+                                        | dragging = Just <| DragEvent index x y 
+                                        , elements = Array.set index element model.elements
+                                        }
+                                    , Cmd.none
+                                    )
                 
             MouseUp ->
                 ( { model | dragging = Nothing }
@@ -97,7 +102,7 @@ viewElement index element =
     let
         sharedAttributes =
             [ Svg.Attributes.class "cursor-pointer"
-            , Events.Svg.onMouseDown <| MouseDown index element
+            , Events.Svg.onMouseDown <| MouseDown index
             ]
     in
         case element of
