@@ -41,8 +41,8 @@ type Msg
 
 
 type Status
-    = Error
-    | Saved
+    = Saved
+    | SyncFailure
     | Syncing
 
 
@@ -62,7 +62,7 @@ update user msg model =
     in
         case msg of
             ElementUpdated (Err _) ->
-                ( { model | status = Error }
+                ( { model | status = SyncFailure }
                 , Cmd.none 
                 )
         
@@ -79,24 +79,12 @@ update user msg model =
             MouseMove x y ->
                 let
                     updatePosition { index, dx, dy } element =
-                        case element of
-                            Element.Circle attributes ->
-                                ( index
-                                , Element.Circle 
-                                    { attributes 
-                                    | x = x - dx + attributes.x
-                                    , y = y - dy + attributes.y
-                                    }
-                                )
-                                    
-                            Element.Rect attributes ->
-                                ( index
-                                , Element.Rect 
-                                    { attributes
-                                    | x = x - dx + attributes.x
-                                    , y = y - dy + attributes.y
-                                    }
-                                )
+                        ( index
+                        , { element 
+                            | x = x - dx + element.x
+                            , y = y - dy + element.y
+                            }
+                        )
                 in
                     case Maybe.map2 updatePosition model.dragging <| getTarget model.dragging of
                         Nothing ->
@@ -129,47 +117,63 @@ update user msg model =
 
 viewElement index element =
     let
+        x = toString element.x
+        y = toString element.y
         sharedAttributes =
             [ Svg.Attributes.class "cursor-pointer"
             , Events.Svg.onMouseDown <| MouseDown index
             ]
     in
-        case element of
-            Element.Circle attributes ->
+        case element.elementType of
+            Element.Circle ->
                 Svg.circle
                     ( sharedAttributes ++ 
-                        [ Svg.Attributes.cx <| toString attributes.x 
-                        , Svg.Attributes.cy <| toString attributes.y 
-                        , Svg.Attributes.r <| toString attributes.radius
+                        [ Svg.Attributes.cx x 
+                        , Svg.Attributes.cy y 
+                        , Svg.Attributes.r <| toString element.radius
                         ]
                     )
                     []
     
-            Element.Rect attributes ->
+            Element.Rect ->
                 Svg.rect
                     ( sharedAttributes ++
-                        [ Svg.Attributes.x <| toString attributes.x 
-                        , Svg.Attributes.y <| toString attributes.y 
-                        , Svg.Attributes.width <| toString attributes.width
-                        , Svg.Attributes.height <| toString attributes.height
+                        [ Svg.Attributes.x x 
+                        , Svg.Attributes.y y 
+                        , Svg.Attributes.width <| toString element.width
+                        , Svg.Attributes.height <| toString element.height
                         ]
                     )
                     []
+
+
+viewStatus status =
+    let
+        ( message, icon ) =
+            case status of
+                Saved ->
+                    ("Saved", "check-circle")
+
+                SyncFailure ->
+                    ("Sync Failure", "exclamation-triangle") 
+
+                Syncing ->
+                    ("Syncing", "spinner fa-pulse")
+    in
+        Html.span
+            [ Attributes.class "is-pulled-right" ]
+            [ Html.text message
+            , Html.span
+                [ Attributes.class "icon pl-1 pr-1" ]
+                [ Elements.fas icon ]
+            ]
+
 
 view { document, elements, status } =
     let
         width = toString document.width
         height = toString document.height
-        ( statusIcon, statusMessage ) =
-            case status of
-                Error ->
-                    ("exclamation-triangle", "Error") 
-            
-                Saved ->
-                    ("check-circle", "Saved")
-
-                Syncing ->
-                    ("spinner fa-pulse", "Syncing")
+        viewBox = String.join " " ["0", "0", width, height]
     in
         Html.div 
             [ Attributes.class "flex-1 flex-column" ]
@@ -181,13 +185,7 @@ view { document, elements, status } =
                 , Html.span
                     [ Attributes.class "has-text-white has-text-semi-bold" ]
                     [ Html.text document.name ]
-                , Html.span
-                    [ Attributes.class "is-pulled-right" ]
-                    [ Html.text statusMessage
-                    , Html.span
-                        [ Attributes.class "icon pl-1 pr-1" ]
-                        [ Elements.fas statusIcon ]
-                    ]
+                , viewStatus status
                 ]
             , Html.div
                 [ Attributes.class "columns flex-1 mb-0 mt-0" ]
@@ -197,19 +195,19 @@ view { document, elements, status } =
                         [ Html.div
                             [ Attributes.class "column ml-0 mr-0 has-text-centered" ]
                             [ Html.span
-                                [ Attributes.class "icon tool" ]
+                                [ Attributes.class "icon tool cursor-pointer" ]
                                 [ Elements.fas "mouse-pointer" ]
                             , Html.hr 
                                 [ Attributes.class "tool" ] 
                                 []
                             , Html.span
-                                [ Attributes.class "icon tool" ]
+                                [ Attributes.class "icon tool cursor-pointer" ]
                                 [ Elements.fas "barcode" ]
                             , Html.span
-                                [ Attributes.class "icon tool" ]
+                                [ Attributes.class "icon tool cursor-pointer" ]
                                 [ Elements.fas "font" ]
                             , Html.span
-                                [ Attributes.class "icon tool" ]
+                                [ Attributes.class "icon tool cursor-pointer" ]
                                 [ Elements.far "square" ]
                             ]
                         ]
@@ -222,7 +220,7 @@ view { document, elements, status } =
                             [ Svg.Attributes.class "shadow has-background-white"
                             , Svg.Attributes.width width
                             , Svg.Attributes.height height
-                            , Svg.Attributes.viewBox <| String.join " " ["0", "0", width, height]
+                            , Svg.Attributes.viewBox viewBox
                             , Events.Svg.onMouseMove MouseMove
                             , Svg.Events.onMouseUp MouseUp
                             ]

@@ -28,15 +28,7 @@ list token documentId =
 update : Maybe String -> Document -> Element -> Http.Request Element
 update token document element =
     let
-        elementId =
-            case element of
-                Element.Circle { id } ->
-                    id
-                    
-                Element.Rect { id } ->
-                    id
-
-        url = String.join "/" [root <| toString document.id, toString elementId]
+        url = String.join "/" [root <| toString document.id, toString element.id]
         request = Api.put url token
     in
         Http.request
