@@ -8,6 +8,7 @@ import Elements
 import Events.Svg
 import Html
 import Html.Attributes as Attributes
+import Html.Events as Events
 import Http
 import Json.Decode as Decode
 import Request.Document
@@ -27,10 +28,19 @@ type alias DragEvent =
 
 type alias Model =
     { dragging : Maybe DragEvent
+    , mode : Mode
     , status : Status
+    , toolbox : List ToolboxItem
     , document : Document
     , elements : Array Element
     }
+
+
+type Mode
+    = Barcode
+    | Select
+    | Shape
+    | Text
 
 
 type Msg
@@ -38,6 +48,7 @@ type Msg
     | MouseDown Int Int Int
     | MouseMove Int Int
     | MouseUp
+    | SetMode Mode
 
 
 type Status
@@ -46,11 +57,24 @@ type Status
     | Syncing
 
 
+type ToolboxItem
+    = Spacer
+    | Tool String Mode
+
+
 init id user = 
     let
+        toolbox = 
+            [ Tool "mouse-pointer" Select
+            , Spacer
+            , Tool "barcode" Barcode
+            , Tool "font" Text
+            , Tool "square" Shape
+            ]
+        model = Model Nothing Select Saved toolbox
         token = Just user.token
     in
-        Task.map2 (Model Nothing Saved) 
+        Task.map2 model 
             (Http.toTask <| Request.Document.get token id)
             (Task.map Array.fromList <| Http.toTask <| Request.Element.list token id)
 
@@ -60,23 +84,23 @@ update user msg model =
         getTarget = Maybe.andThen <| getElement << .index
         token = Maybe.map .token user
     in
-        case msg of
-            ElementUpdated (Err _) ->
+        case ( msg, model.mode ) of
+            (ElementUpdated (Err _), _) ->
                 ( { model | status = SyncFailure }
                 , Cmd.none 
                 )
         
-            ElementUpdated (Ok element) ->
+            (ElementUpdated (Ok element), _) ->
                 ( { model | status = Saved }
                 , Cmd.none
                 )
         
-            MouseDown index x y ->
+            (MouseDown index x y, Select) ->
                 ( { model | dragging = Just <| DragEvent index x y }
                 , Cmd.none
                 )
                 
-            MouseMove x y ->
+            (MouseMove x y, Select) ->
                 let
                     updatePosition { index, dx, dy } element =
                         ( index
@@ -98,7 +122,7 @@ update user msg model =
                             , Cmd.none
                             )
                 
-            MouseUp ->
+            (MouseUp, Select) ->
                 case getTarget model.dragging of
                     Nothing ->
                         ( { model | dragging = Nothing }
@@ -113,6 +137,14 @@ update user msg model =
                         , Http.send ElementUpdated 
                             <| Request.Element.update token model.document element
                         )
+                        
+            (SetMode mode, _) ->
+                ( { model | mode = mode }
+                , Cmd.none
+                )
+                
+            (_, _) ->
+                ( model, Cmd.none )
 
 
 viewElement index element =
@@ -167,9 +199,31 @@ viewStatus status =
                 [ Attributes.class "icon pl-1 pr-1" ]
                 [ Elements.fas icon ]
             ]
+            
+            
+viewToolboxItem toolMode item =
+    case item of 
+        Spacer ->
+            Html.hr 
+                [ Attributes.class "tool" ] 
+                []
+                
+        Tool icon mode ->
+            let
+                activeClass = 
+                    if toolMode == mode then
+                        "active"
+                    else
+                        "inactive"
+            in
+                Html.span
+                    [ Attributes.class <| "icon tool cursor-pointer " ++ activeClass
+                    , Events.onClick <| SetMode mode 
+                    ]
+                    [ Elements.fas icon ]
 
 
-view { document, elements, status } =
+view { document, elements, mode, status, toolbox } =
     let
         width = toString document.width
         height = toString document.height
@@ -194,22 +248,7 @@ view { document, elements, status } =
                     [ Elements.columns 
                         [ Html.div
                             [ Attributes.class "column ml-0 mr-0 has-text-centered" ]
-                            [ Html.span
-                                [ Attributes.class "icon tool cursor-pointer" ]
-                                [ Elements.fas "mouse-pointer" ]
-                            , Html.hr 
-                                [ Attributes.class "tool" ] 
-                                []
-                            , Html.span
-                                [ Attributes.class "icon tool cursor-pointer" ]
-                                [ Elements.fas "barcode" ]
-                            , Html.span
-                                [ Attributes.class "icon tool cursor-pointer" ]
-                                [ Elements.fas "font" ]
-                            , Html.span
-                                [ Attributes.class "icon tool cursor-pointer" ]
-                                [ Elements.far "square" ]
-                            ]
+                            <| List.map (viewToolboxItem mode) toolbox
                         ]
                     ]
                 , Html.div

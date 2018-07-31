@@ -121,6 +121,10 @@ html, body {
   margin-bottom: 0.5rem;
 }
 
+.icon.tool.active {
+  background-color: #e4eaed !important;
+}
+
 .icon.tool:hover {
   background-color: hsl(0, 0%, 96%);
 }
