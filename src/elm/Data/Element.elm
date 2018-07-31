@@ -49,10 +49,20 @@ decodeElementType =
 
 
 encoder element =
-    Encode.object
-        [ ("x", Encode.int element.x)
-        , ("y", Encode.int element.y)
-        , ("width", Encode.int element.width)
-        , ("height", Encode.int element.height)
-        , ("radius", Encode.int element.radius)
-        ]
+    let 
+        elementType =
+            case element.elementType of
+                Circle ->
+                    1
+                    
+                Rect ->
+                    2
+    in
+        Encode.object
+            [ ("x", Encode.int element.x)
+            , ("y", Encode.int element.y)
+            , ("element_type", Encode.int elementType)
+            , ("width", Encode.int element.width)
+            , ("height", Encode.int element.height)
+            , ("radius", Encode.int element.radius)
+            ]

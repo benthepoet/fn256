@@ -44,10 +44,11 @@ type Mode
 
 
 type Msg
-    = ElementUpdated (Result Http.Error Element)
+    = ElementCreated (Result Http.Error Element)
+    | ElementUpdated (Result Http.Error Element)
     | MouseDown Int Int Int
     | MouseMove Int Int
-    | MouseUp
+    | MouseUp Int Int
     | SetMode Mode
 
 
@@ -85,6 +86,19 @@ update user msg model =
         token = Maybe.map .token user
     in
         case ( msg, model.mode ) of
+            (ElementCreated (Err _), _) ->
+                ( { model | status = SyncFailure }
+                , Cmd.none 
+                )
+        
+            (ElementCreated (Ok element), _) ->
+                ( { model 
+                    | elements = Array.push element model.elements
+                    , status = Saved 
+                    }
+                , Cmd.none
+                )
+        
             (ElementUpdated (Err _), _) ->
                 ( { model | status = SyncFailure }
                 , Cmd.none 
@@ -122,7 +136,7 @@ update user msg model =
                             , Cmd.none
                             )
                 
-            (MouseUp, Select) ->
+            (MouseUp _ _, Select) ->
                 case getTarget model.dragging of
                     Nothing ->
                         ( { model | dragging = Nothing }
@@ -137,6 +151,22 @@ update user msg model =
                         , Http.send ElementUpdated 
                             <| Request.Element.update token model.document element
                         )
+                        
+            (MouseUp x y, Shape) ->
+                let
+                    element = 
+                        { x = x
+                        , y = y
+                        , elementType = Element.Rect
+                        , width = 50
+                        , height = 50
+                        , radius = 0
+                        }
+                in
+                    ( { model | status = Syncing }
+                    , Http.send ElementCreated
+                        <| Request.Element.create token model.document element
+                    )
                         
             (SetMode mode, _) ->
                 ( { model | mode = mode }
@@ -201,14 +231,14 @@ viewStatus status =
             ]
             
             
-viewToolboxItem toolMode item =
+viewToolboxItem mode item =
     case item of 
         Spacer ->
             Html.hr 
                 [ Attributes.class "tool" ] 
                 []
                 
-        Tool icon mode ->
+        Tool icon toolMode ->
             let
                 activeClass = 
                     if toolMode == mode then
@@ -218,7 +248,7 @@ viewToolboxItem toolMode item =
             in
                 Html.span
                     [ Attributes.class <| "icon tool cursor-pointer " ++ activeClass
-                    , Events.onClick <| SetMode mode 
+                    , Events.onClick <| SetMode toolMode 
                     ]
                     [ Elements.fas icon ]
 
@@ -261,7 +291,7 @@ view { document, elements, mode, status, toolbox } =
                             , Svg.Attributes.height height
                             , Svg.Attributes.viewBox viewBox
                             , Events.Svg.onMouseMove MouseMove
-                            , Svg.Events.onMouseUp MouseUp
+                            , Events.Svg.onMouseUp MouseUp
                             ]
                             <| Array.toList 
                             <| Array.indexedMap viewElement elements

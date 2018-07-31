@@ -17,6 +17,18 @@ root documentId =
         ]
 
 
+create token document element =
+    let
+        url = root document.id
+        request = Api.post url token
+    in
+        Http.request
+            { request
+            | body = Http.jsonBody <| Element.encoder element
+            , expect = Http.expectJson Element.decoder
+            }
+
+
 list : Maybe String -> Int -> Http.Request (List Element)
 list token documentId =
     let
