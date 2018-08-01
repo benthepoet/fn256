@@ -28,7 +28,7 @@ type alias DragEvent =
 
 
 type alias Model =
-    { dragging : Maybe DragEvent
+    { event : Maybe DragEvent
     , mode : Mode
     , status : Status
     , toolbox : List ToolboxItem
@@ -87,15 +87,16 @@ update user msg model =
         getTarget = Maybe.andThen <| getElement << .index
         token = Maybe.map .token user
     in
-        case ( msg, model.mode ) of
-            (DocumentPosition (x, y), Shape) ->
+        case (model.mode, msg) of
+            (Shape, DocumentPosition (x, y)) ->
                 let
+                    size = 50
                     element = 
-                        { x = x
-                        , y = y
+                        { x = x - (size // 2)
+                        , y = y - (size // 2)
                         , elementType = Element.Rect
-                        , width = 50
-                        , height = 50
+                        , width = size
+                        , height = size
                         , radius = 0
                         }
                 in
@@ -103,36 +104,18 @@ update user msg model =
                     , Http.send ElementCreated
                         <| Request.Element.create token model.document element
                     )
-            
-            (ElementCreated (Err _), _) ->
-                ( { model | status = SyncFailure }
-                , Cmd.none 
+        
+            (Shape, MouseUp x y) ->
+                ( model
+                , Ports.getDocumentPosition (x, y)
                 )
         
-            (ElementCreated (Ok element), _) ->
-                ( { model 
-                    | elements = Array.push element model.elements
-                    , status = Saved 
-                    }
-                , Cmd.none
-                )
-        
-            (ElementUpdated (Err _), _) ->
-                ( { model | status = SyncFailure }
-                , Cmd.none 
-                )
-        
-            (ElementUpdated (Ok element), _) ->
-                ( { model | status = Saved }
-                , Cmd.none
-                )
-        
-            (MouseDown index x y, Select) ->
-                ( { model | dragging = Just <| DragEvent index x y }
+            (Select, MouseDown index x y) ->
+                ( { model | event = Just <| DragEvent index x y }
                 , Cmd.none
                 )
                 
-            (MouseMove x y, Select) ->
+            (Select, MouseMove x y) ->
                 let
                     updatePosition { index, dx, dy } element =
                         ( index
@@ -142,40 +125,58 @@ update user msg model =
                             }
                         )
                 in
-                    case Maybe.map2 updatePosition model.dragging <| getTarget model.dragging of
+                    case Maybe.map2 updatePosition model.event <| getTarget model.event of
                         Nothing ->
                             ( model, Cmd.none)
                             
                         Just (index, element) ->
                             ( { model 
-                                | dragging = Just <| DragEvent index x y 
+                                | event = Just <| DragEvent index x y 
                                 , elements = Array.set index element model.elements
                                 }
                             , Cmd.none
                             )
                 
-            (MouseUp _ _, Select) ->
-                case getTarget model.dragging of
+            (Select, MouseUp _ _) ->
+                case getTarget model.event of
                     Nothing ->
-                        ( { model | dragging = Nothing }
+                        ( { model | event = Nothing }
                         , Cmd.none 
                         )
                         
                     Just element ->
                         ( { model 
-                            | dragging = Nothing 
+                            | event = Nothing 
                             , status = Syncing
                             }
                         , Http.send ElementUpdated 
                             <| Request.Element.update token model.document element
                         )
-                        
-            (MouseUp x y, Shape) ->
-                ( model
-                , Ports.getDocumentPosition (x, y)
+                   
+            (_, ElementCreated (Err _)) ->
+                ( { model | status = SyncFailure }
+                , Cmd.none 
+                )
+        
+            (_, ElementCreated (Ok element)) ->
+                ( { model 
+                    | elements = Array.push element model.elements
+                    , status = Saved 
+                    }
+                , Cmd.none
+                )
+        
+            (_, ElementUpdated (Err _)) ->
+                ( { model | status = SyncFailure }
+                , Cmd.none 
+                )
+        
+            (_, ElementUpdated (Ok element)) ->
+                ( { model | status = Saved }
+                , Cmd.none
                 )
                         
-            (SetMode mode, _) ->
+            (_, SetMode mode) ->
                 ( { model | mode = mode }
                 , Cmd.none
                 )
