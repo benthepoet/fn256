@@ -11,6 +11,7 @@ import Html.Attributes as Attributes
 import Html.Events as Events
 import Http
 import Json.Decode as Decode
+import Ports
 import Request.Document
 import Request.Element
 import Svg
@@ -44,7 +45,8 @@ type Mode
 
 
 type Msg
-    = ElementCreated (Result Http.Error Element)
+    = DocumentPosition (Int, Int)
+    | ElementCreated (Result Http.Error Element)
     | ElementUpdated (Result Http.Error Element)
     | MouseDown Int Int Int
     | MouseMove Int Int
@@ -86,6 +88,22 @@ update user msg model =
         token = Maybe.map .token user
     in
         case ( msg, model.mode ) of
+            (DocumentPosition (x, y), Shape) ->
+                let
+                    element = 
+                        { x = x
+                        , y = y
+                        , elementType = Element.Rect
+                        , width = 50
+                        , height = 50
+                        , radius = 0
+                        }
+                in
+                    ( { model | status = Syncing }
+                    , Http.send ElementCreated
+                        <| Request.Element.create token model.document element
+                    )
+            
             (ElementCreated (Err _), _) ->
                 ( { model | status = SyncFailure }
                 , Cmd.none 
@@ -153,20 +171,9 @@ update user msg model =
                         )
                         
             (MouseUp x y, Shape) ->
-                let
-                    element = 
-                        { x = x
-                        , y = y
-                        , elementType = Element.Rect
-                        , width = 50
-                        , height = 50
-                        , radius = 0
-                        }
-                in
-                    ( { model | status = Syncing }
-                    , Http.send ElementCreated
-                        <| Request.Element.create token model.document element
-                    )
+                ( model
+                , Ports.getDocumentPosition (x, y)
+                )
                         
             (SetMode mode, _) ->
                 ( { model | mode = mode }

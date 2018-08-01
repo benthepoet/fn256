@@ -18,7 +18,19 @@ var flags = {
 var app = Elm.Main.fullscreen(flags);
 
 // Set subscriptions
+app.ports.getDocumentPosition.subscribe(getDocumentPosition);
 app.ports.syncUser.subscribe(setItem.bind(null, config.STORAGE.USER));
+
+function getDocumentPosition(vector) {
+  var svg = document.querySelector('svg'),
+    rect = svg.getBoundingClientRect(),
+    position = [
+      vector[0] - Math.round(rect.left), 
+      vector[1] - Math.round(rect.top)
+    ];
+
+  app.ports.documentPosition.send(position);
+}
 
 function getItem(key) {
   var value = sessionStorage.getItem(key);

@@ -81,7 +81,7 @@ init flags location =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Ports.documentPosition <| EditorMsg << Editor.DocumentPosition
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
