@@ -6,6 +6,7 @@ import Html
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Route
+import View.Icons as Icons
 
 
 type alias Model =
@@ -48,10 +49,7 @@ view =
                                     [ Events.onInput TypeEmail ]
                                 , Html.span
                                     [ Attributes.class "icon is-small is-left" ]
-                                    [ Html.i 
-                                        [ Attributes.class "fas fa-envelope" ]
-                                        []
-                                    ]
+                                    [ Icons.mail ]
                                 ]
                             ]
                         , Elements.field

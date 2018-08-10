@@ -9,6 +9,7 @@ import Html.Events as Events
 import Http
 import Request.Auth as Auth
 import Route
+import View.Icons as Icons
 
 
 type alias Model =
@@ -106,10 +107,7 @@ view model =
                                     ]
                                 , Html.span
                                     [ Attributes.class "icon is-small is-left" ]
-                                    [ Html.i 
-                                        [ Attributes.class "fas fa-envelope" ]
-                                        []
-                                    ]
+                                    [ Icons.mail ]
                                 ]
                             ]
                         , Elements.field
@@ -121,10 +119,7 @@ view model =
                                     ]
                                 , Html.span
                                     [ Attributes.class "icon is-small is-left" ]
-                                    [ Html.i 
-                                        [ Attributes.class "fas fa-lock" ]
-                                        []
-                                    ]
+                                    [ Icons.lock ]
                                 ]
                             ]
                         , Elements.field

@@ -248,18 +248,16 @@ viewToolboxItem mode item =
                 []
                 
         Tool icon toolMode ->
-            let
-                activeClass = 
-                    if toolMode == mode then
-                        "active"
-                    else
-                        "inactive"
-            in
-                Html.span
-                    [ Attributes.class <| "icon tool cursor-pointer " ++ activeClass
-                    , Events.onClick <| SetMode toolMode 
+            Html.span
+                [ Attributes.classList
+                    [ ("icon", True)
+                    , ("tool", True)
+                    , ("cursor-pointer", True)
+                    , ("active", toolMode == mode)
                     ]
-                    [ icon ]
+                , Events.onClick <| SetMode toolMode 
+                ]
+                [ icon ]
 
 
 view { document, elements, mode, status, toolbox } =

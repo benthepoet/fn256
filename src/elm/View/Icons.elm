@@ -36,9 +36,21 @@ font =
     fas ["fa-font"]
     
     
+lock =
+    fas ["fa-lock"]
+    
+    
+mail =
+    fas ["fa-envelope"]
+
+    
 pointer =
     fas ["fa-mouse-pointer"]
     
+
+search =
+    fas ["fa-search"]
+
 
 spinner =
     fas ["fa-spinner", "fa-pulse"]

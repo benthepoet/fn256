@@ -9,6 +9,7 @@ import Html.Events as Events
 import Http
 import Request.Document
 import Route
+import View.Icons as Icons
 
 
 type alias Model =
@@ -29,6 +30,11 @@ init user =
     ( Model [] False True Nothing
     , Http.send LoadDocuments <| Request.Document.list (Just user.token) []
     )
+    
+    
+isDocumentActive document =
+    Maybe.map (.id >> (==) document.id)    
+        >> Maybe.withDefault False 
     
     
 update user msg model =
@@ -67,27 +73,18 @@ update user msg model =
 
 
 viewDocument selected document =
-    let
-        isActive =
-            case selected of
-                Nothing ->
-                    False
-                
-                Just { id } ->
-                    id == document.id
-    in
-        Html.a
-            [ Attributes.class <| "panel-block" ++ if isActive then " is-active" else ""
-            , Events.onClick <| Select document 
+    Html.a
+        [ Attributes.classList
+            [ ("panel-block", True)
+            , ("is-active", isDocumentActive document selected)
             ]
-            [ Html.span
-                [ Attributes.class "panel-icon" ]
-                [ Html.i 
-                    [ Attributes.class "fas fa-file-alt" ]
-                    []
-                ]
-            , Html.text document.name
-            ]
+        , Events.onClick <| Select document 
+        ]
+        [ Html.span
+            [ Attributes.class "panel-icon" ]
+            [ Icons.file ]
+        , Html.text document.name
+        ]
 
 
 viewSelected selected =
@@ -144,10 +141,7 @@ view subModel =
                                 []
                             , Html.span
                                 [ Attributes.class "icon is-left" ]
-                                [ Html.i 
-                                    [ Attributes.class "fas fa-search" ]
-                                    []
-                                ]
+                                [ Icons.search ]
                             ]
                         ]
                     ] ++ List.map (viewDocument subModel.selected) subModel.documents 
