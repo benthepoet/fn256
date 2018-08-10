@@ -6,7 +6,7 @@ import Data.Document exposing (Document)
 import Data.Element as Element exposing (Element)
 import Elements
 import Events.Svg
-import Html
+import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Http
@@ -18,6 +18,7 @@ import Svg
 import Svg.Attributes
 import Svg.Events
 import Task
+import View.Icons as Icons
 
 
 type alias DragEvent =
@@ -62,17 +63,17 @@ type Status
 
 type ToolboxItem
     = Spacer
-    | Tool String Mode
+    | Tool (Html Msg) Mode
 
 
 init id user = 
     let
         toolbox = 
-            [ Tool "mouse-pointer" Select
+            [ Tool Icons.pointer Select
             , Spacer
-            , Tool "barcode" Barcode
-            , Tool "font" Text
-            , Tool "square" Shape
+            , Tool Icons.barcode Barcode
+            , Tool Icons.font Text
+            , Tool Icons.square Shape
             ]
         model = Model Nothing Select Saved toolbox
         token = Just user.token
@@ -222,20 +223,20 @@ viewStatus status =
         ( message, icon ) =
             case status of
                 Saved ->
-                    ("Saved", "check-circle")
+                    ("Saved", Icons.check)
 
                 SyncFailure ->
-                    ("Sync Failure", "exclamation-triangle") 
+                    ("Sync Failure", Icons.warning) 
 
                 Syncing ->
-                    ("Syncing", "spinner fa-pulse")
+                    ("Syncing", Icons.spinner)
     in
         Html.span
             [ Attributes.class "is-pulled-right" ]
             [ Html.text message
             , Html.span
                 [ Attributes.class "icon pl-1 pr-1" ]
-                [ Elements.fas icon ]
+                [ icon ]
             ]
             
             
@@ -258,7 +259,7 @@ viewToolboxItem mode item =
                     [ Attributes.class <| "icon tool cursor-pointer " ++ activeClass
                     , Events.onClick <| SetMode toolMode 
                     ]
-                    [ Elements.fas icon ]
+                    [ icon ]
 
 
 view { document, elements, mode, status, toolbox } =
@@ -273,7 +274,7 @@ view { document, elements, mode, status, toolbox } =
                 [ Attributes.class "pl shadow-b has-background-link has-text-white" ]
                 [ Html.span
                     [ Attributes.class "icon pl-1 pr-1" ]
-                    [ Elements.fas "file-alt" ]
+                    [ Icons.file ]
                 , Html.span
                     [ Attributes.class "has-text-white has-text-semi-bold" ]
                     [ Html.text document.name ]

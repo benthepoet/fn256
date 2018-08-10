@@ -49,18 +49,6 @@ error message =
         ]
 
 
-far icon = 
-    Html.i
-        [ Attributes.class <| "far fa-" ++ icon ]
-        []
-
-
-fas icon = 
-    Html.i
-        [ Attributes.class <| "fas fa-" ++ icon ]
-        []
-
-
 field =
     Html.div 
         [ Attributes.class "field" ]
