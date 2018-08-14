@@ -209,16 +209,17 @@ update user msg model =
 
 viewElement index element =
     let
-        sharedAttributes =
-            [ Svg.Attributes.class "cursor-pointer"
-            , Svg.Events.onClick MouseClick
-            , Events.Svg.onMouseDown <| MouseDown index
-            ]
+        baseAttributes =
+            (++)
+                [ Svg.Attributes.class "cursor-pointer no-select"
+                , Svg.Events.onClick MouseClick
+                , Events.Svg.onMouseDown <| MouseDown index
+                ]
     in
         case element.elementType of
             Element.Circle attributes ->
                 Svg.circle
-                    ( sharedAttributes ++ 
+                    ( baseAttributes 
                         [ Svg.Attributes.cx <| toString attributes.x 
                         , Svg.Attributes.cy <| toString attributes.y 
                         , Svg.Attributes.r <| toString attributes.radius
@@ -228,7 +229,7 @@ viewElement index element =
     
             Element.Rect attributes ->
                 Svg.rect
-                    ( sharedAttributes ++
+                    ( baseAttributes
                         [ Svg.Attributes.x <| toString attributes.x 
                         , Svg.Attributes.y <| toString attributes.y 
                         , Svg.Attributes.width <| toString attributes.width
@@ -239,7 +240,7 @@ viewElement index element =
                     
             Element.TextBox attributes ->
                 Svg.text_
-                    ( sharedAttributes ++
+                    ( baseAttributes
                         [ Svg.Attributes.x <| toString attributes.x
                         , Svg.Attributes.y <| toString attributes.y
                         ]
