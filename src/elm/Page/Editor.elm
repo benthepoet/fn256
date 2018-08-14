@@ -93,9 +93,13 @@ update user msg model =
             (Shape, DocumentPosition (x, y)) ->
                 let
                     size = 50
-                    attributes = Element.RectAttributes (x - size // 2) (y - size // 2) size size
                     element = 
-                        { elementType = Element.Rect attributes
+                        { elementType = Element.Rect 
+                            { x = x - size // 2
+                            , y = y - size // 2
+                            , width = size
+                            , height = size
+                            }
                         }
                 in
                     ( { model | status = Syncing }
@@ -115,28 +119,27 @@ update user msg model =
                 
             (Select, MouseMove x y) ->
                 let
-                    updatePosition { index, dx, dy } element =
-                        let elementType =
-                            case element.elementType of
-                                Element.Circle attributes ->
-                                    Element.Circle 
-                                        { attributes 
-                                        | x = x - dx + attributes.x
-                                        , y = y - dy + attributes.y
-                                        }
-                                        
-                                Element.Rect attributes ->
-                                    Element.Rect 
-                                        { attributes 
-                                        | x = x - dx + attributes.x
-                                        , y = y - dy + attributes.y
-                                        }
+                    updateElement { index, dx, dy } element =
+                        let 
+                            updateAttributes attributes =
+                                { attributes
+                                | x = x - dx + attributes.x
+                                , y = y - dy + attributes.y
+                                }
+
+                            elementType =
+                                case element.elementType of
+                                    Element.Circle attributes ->
+                                        Element.Circle <| updateAttributes attributes
+                                            
+                                    Element.Rect attributes ->
+                                        Element.Rect <| updateAttributes attributes
                         in
                             ( index
                             , { element | elementType = elementType }
                             )
                 in
-                    case Maybe.map2 updatePosition model.event <| getTarget model.event of
+                    case Maybe.map2 updateElement model.event <| getTarget model.event of
                         Nothing ->
                             ( model, Cmd.none)
                             
