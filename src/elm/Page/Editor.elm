@@ -50,6 +50,7 @@ type Msg
     | ElementCreated (Result Http.Error Element)
     | ElementUpdated (Result Http.Error Element)
     | MouseDown Int Int Int
+    | MouseClick
     | MouseMove Int Int
     | MouseUp Int Int
     | SetMode Mode
@@ -92,13 +93,9 @@ update user msg model =
             (Shape, DocumentPosition (x, y)) ->
                 let
                     size = 50
+                    attributes = Element.RectAttributes (x - size // 2) (y - size // 2) size size
                     element = 
-                        { x = x - (size // 2)
-                        , y = y - (size // 2)
-                        , elementType = Element.Rect
-                        , width = size
-                        , height = size
-                        , radius = 0
+                        { elementType = Element.Rect attributes
                         }
                 in
                     ( { model | status = Syncing }
@@ -119,12 +116,25 @@ update user msg model =
             (Select, MouseMove x y) ->
                 let
                     updatePosition { index, dx, dy } element =
-                        ( index
-                        , { element 
-                            | x = x - dx + element.x
-                            , y = y - dy + element.y
-                            }
-                        )
+                        let elementType =
+                            case element.elementType of
+                                Element.Circle attributes ->
+                                    Element.Circle 
+                                        { attributes 
+                                        | x = x - dx + attributes.x
+                                        , y = y - dy + attributes.y
+                                        }
+                                        
+                                Element.Rect attributes ->
+                                    Element.Rect 
+                                        { attributes 
+                                        | x = x - dx + attributes.x
+                                        , y = y - dy + attributes.y
+                                        }
+                        in
+                            ( index
+                            , { element | elementType = elementType }
+                            )
                 in
                     case Maybe.map2 updatePosition model.event <| getTarget model.event of
                         Nothing ->
@@ -177,6 +187,11 @@ update user msg model =
                 , Cmd.none
                 )
                         
+            (_, MouseClick) ->
+                ( Debug.log "model" model 
+                , Cmd.none
+                )
+                        
             (_, SetMode mode) ->
                 ( { model | mode = mode }
                 , Cmd.none
@@ -188,31 +203,30 @@ update user msg model =
 
 viewElement index element =
     let
-        x = toString element.x
-        y = toString element.y
         sharedAttributes =
             [ Svg.Attributes.class "cursor-pointer"
+            , Svg.Events.onClick MouseClick
             , Events.Svg.onMouseDown <| MouseDown index
             ]
     in
         case element.elementType of
-            Element.Circle ->
+            Element.Circle attributes ->
                 Svg.circle
                     ( sharedAttributes ++ 
-                        [ Svg.Attributes.cx x 
-                        , Svg.Attributes.cy y 
-                        , Svg.Attributes.r <| toString element.radius
+                        [ Svg.Attributes.cx <| toString attributes.x 
+                        , Svg.Attributes.cy <| toString attributes.y 
+                        , Svg.Attributes.r <| toString attributes.radius
                         ]
                     )
                     []
     
-            Element.Rect ->
+            Element.Rect attributes ->
                 Svg.rect
                     ( sharedAttributes ++
-                        [ Svg.Attributes.x x 
-                        , Svg.Attributes.y y 
-                        , Svg.Attributes.width <| toString element.width
-                        , Svg.Attributes.height <| toString element.height
+                        [ Svg.Attributes.x <| toString attributes.x 
+                        , Svg.Attributes.y <| toString attributes.y 
+                        , Svg.Attributes.width <| toString attributes.width
+                        , Svg.Attributes.height <| toString attributes.height
                         ]
                     )
                     []

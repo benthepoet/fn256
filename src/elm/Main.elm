@@ -87,8 +87,11 @@ subscriptions model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case ( msg, model.page ) of
-        (EditorLoaded (Err _), _) ->
-            ( model, Cmd.none )
+        (EditorLoaded (Err err), _) ->
+            let
+                a = Debug.log "err" err
+            in
+                ( model, Cmd.none )
                 
         (EditorLoaded (Ok subModel), _) ->
             ( { model | page = Loaded <| Editor subModel }

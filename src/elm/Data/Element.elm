@@ -6,63 +6,86 @@ import Json.Encode as Encode
 
 
 type ElementType
-    = Circle
-    | Rect
+    = Circle CircleAttributes
+    | Rect RectAttributes
+
+
+type alias CircleAttributes =
+    { x : Int
+    , y : Int
+    , radius : Int
+    }
+    
+
+type alias RectAttributes =
+    { x : Int
+    , y : Int
+    , width : Int
+    , height : Int
+    }
 
 
 type alias Element =
     { id : Int
     , elementType : ElementType
-    , x : Int
-    , y : Int
-    , width : Int
-    , height : Int
-    , radius : Int
     }
 
 
 decoder = 
-    Decode.map7 Element
+    Decode.map2 Element
         (Decode.field "id" Decode.int)
-        (Decode.field "element_type" decodeElementType)
-        (Decode.field "x" Decode.int)
-        (Decode.field "y" Decode.int)
-        (Decode.field "width" Decode.int)
-        (Decode.field "height" Decode.int)
-        (Decode.field "radius" Decode.int)
-
+        (decodeElementType)
 
 
 decodeElementType =
-    Decode.int
+    Decode.field "element_type" Decode.int
         |> Decode.andThen (\elementType -> 
-            case elementType of
-                1 ->
-                    Decode.succeed Circle
-                    
-                2 ->
-                    Decode.succeed Rect
-                    
-                _ ->
-                    Decode.fail "The element type is invalid."
+            Decode.field "attributes"
+                <| case elementType of
+                    1 ->
+                        Decode.map Circle 
+                            <| Decode.map3 CircleAttributes
+                                (Decode.field "x" Decode.int)
+                                (Decode.field "y" Decode.int)
+                                (Decode.field "radius" Decode.int)
+                        
+                    2 ->
+                        Decode.map Rect 
+                            <| Decode.map4 RectAttributes
+                                (Decode.field "x" Decode.int)
+                                (Decode.field "y" Decode.int)
+                                (Decode.field "width" Decode.int)
+                                (Decode.field "height" Decode.int)
+                        
+                    _ ->
+                        Decode.fail "The element type is invalid."
         )
 
 
 encoder element =
     let 
-        elementType =
+        ( elementType, attributes ) =
             case element.elementType of
-                Circle ->
-                    1
+                Circle attributes ->
+                    ( Encode.int 1
+                    , Encode.object 
+                        [ ("x", Encode.int attributes.x)
+                        , ("y", Encode.int attributes.y)
+                        , ("radius", Encode.int attributes.radius)
+                        ]
+                    )
                     
-                Rect ->
-                    2
+                Rect attributes ->
+                    ( Encode.int 2
+                    , Encode.object 
+                        [ ("x", Encode.int attributes.x)
+                        , ("y", Encode.int attributes.y)
+                        , ("width", Encode.int attributes.width)
+                        , ("height", Encode.int attributes.height)
+                        ]
+                    )
     in
-        Encode.object
-            [ ("x", Encode.int element.x)
-            , ("y", Encode.int element.y)
-            , ("element_type", Encode.int elementType)
-            , ("width", Encode.int element.width)
-            , ("height", Encode.int element.height)
-            , ("radius", Encode.int element.radius)
+        Encode.object 
+            [ ("element_type", elementType)
+            , ("attributes", attributes)
             ]
