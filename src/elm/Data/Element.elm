@@ -31,35 +31,37 @@ type alias Element =
     }
 
 
-decoder = 
-    Decode.map2 Element
-        (Decode.field "id" Decode.int)
-        (decodeElementType)
+decodeElementType elementType =
+    let
+        attributesDecoder =
+            case elementType of
+                1 ->
+                    Decode.map Circle 
+                        <| Decode.map3 CircleAttributes
+                            (Decode.field "x" Decode.int)
+                            (Decode.field "y" Decode.int)
+                            (Decode.field "radius" Decode.int)
+                    
+                2 ->
+                    Decode.map Rect 
+                        <| Decode.map4 RectAttributes
+                            (Decode.field "x" Decode.int)
+                            (Decode.field "y" Decode.int)
+                            (Decode.field "width" Decode.int)
+                            (Decode.field "height" Decode.int)
+                    
+                _ ->
+                    Decode.fail "The element type is invalid."
+                    
+    in
+        Decode.map2 Element
+            (Decode.field "id" Decode.int)
+            (Decode.field "attributes" attributesDecoder)
 
 
-decodeElementType =
+decoder =
     Decode.field "element_type" Decode.int
-        |> Decode.andThen (\elementType -> 
-            Decode.field "attributes"
-                <| case elementType of
-                    1 ->
-                        Decode.map Circle 
-                            <| Decode.map3 CircleAttributes
-                                (Decode.field "x" Decode.int)
-                                (Decode.field "y" Decode.int)
-                                (Decode.field "radius" Decode.int)
-                        
-                    2 ->
-                        Decode.map Rect 
-                            <| Decode.map4 RectAttributes
-                                (Decode.field "x" Decode.int)
-                                (Decode.field "y" Decode.int)
-                                (Decode.field "width" Decode.int)
-                                (Decode.field "height" Decode.int)
-                        
-                    _ ->
-                        Decode.fail "The element type is invalid."
-        )
+        |> Decode.andThen decodeElementType
 
 
 encoder element =
