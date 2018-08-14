@@ -134,6 +134,9 @@ update user msg model =
                                             
                                     Element.Rect attributes ->
                                         Element.Rect <| updateAttributes attributes
+                                        
+                                    Element.TextBox attributes ->
+                                        Element.TextBox <| updateAttributes attributes
                         in
                             ( index
                             , { element | elementType = elementType }
@@ -233,6 +236,15 @@ viewElement index element =
                         ]
                     )
                     []
+                    
+            Element.TextBox attributes ->
+                Svg.text_
+                    ( sharedAttributes ++
+                        [ Svg.Attributes.x <| toString attributes.x
+                        , Svg.Attributes.y <| toString attributes.y
+                        ]
+                    )
+                    [ Svg.text attributes.text ]
 
 
 viewStatus status =
