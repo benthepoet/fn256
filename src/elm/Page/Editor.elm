@@ -92,6 +92,30 @@ getTarget { elements, event } =
         Maybe.andThen getElement event
 
 
+moveElement (x, y) { index, dx, dy } element =
+    let 
+        updateAttributes attributes =
+            { attributes
+            | x = x - dx + attributes.x
+            , y = y - dy + attributes.y
+            }
+
+        elementType =
+            case element.elementType of
+                Element.Circle attributes ->
+                    Element.Circle <| updateAttributes attributes
+                        
+                Element.Rect attributes ->
+                    Element.Rect <| updateAttributes attributes
+                    
+                Element.TextBox attributes ->
+                    Element.TextBox <| updateAttributes attributes
+    in
+        ( index
+        , { element | elementType = elementType }
+        )
+
+
 update user msg model =
     let
         token = Maybe.map .token user
@@ -125,41 +149,17 @@ update user msg model =
                 )
                 
             (Select, MouseMove x y) ->
-                let
-                    updateElement { index, dx, dy } element =
-                        let 
-                            updateAttributes attributes =
-                                { attributes
-                                | x = x - dx + attributes.x
-                                , y = y - dy + attributes.y
-                                }
-
-                            elementType =
-                                case element.elementType of
-                                    Element.Circle attributes ->
-                                        Element.Circle <| updateAttributes attributes
-                                            
-                                    Element.Rect attributes ->
-                                        Element.Rect <| updateAttributes attributes
-                                        
-                                    Element.TextBox attributes ->
-                                        Element.TextBox <| updateAttributes attributes
-                        in
-                            ( index
-                            , { element | elementType = elementType }
-                            )
-                in
-                    case Maybe.map2 updateElement model.event <| getTarget model of
-                        Nothing ->
-                            ( model, Cmd.none)
-                            
-                        Just (index, element) ->
-                            ( { model 
-                                | event = Just <| DragEvent index x y 
-                                , elements = Array.set index element model.elements
-                                }
-                            , Cmd.none
-                            )
+                case Maybe.map2 (moveElement (x, y)) model.event <| getTarget model of
+                    Nothing ->
+                        ( model, Cmd.none)
+                        
+                    Just (index, element) ->
+                        ( { model 
+                            | event = Just <| DragEvent index x y 
+                            , elements = Array.set index element model.elements
+                            }
+                        , Cmd.none
+                        )
                 
             (Select, MouseUp _ _) ->
                 case getTarget model of
