@@ -14,7 +14,7 @@ import Json.Decode as Decode
 import Ports
 import Request.Document
 import Request.Element
-import Svg
+import Svg exposing (Svg)
 import Svg.Attributes
 import Svg.Events
 import Task
@@ -92,6 +92,7 @@ getTarget { elements, event } =
         Maybe.andThen getElement event
 
 
+moveElement : (Int, Int) -> DragEvent -> Element -> (Int, Element)
 moveElement (x, y) { index, dx, dy } element =
     let 
         updateAttributes attributes =
@@ -214,6 +215,7 @@ update user msg model =
                 ( model, Cmd.none )
 
 
+viewElement : Int -> Element -> Svg Msg
 viewElement index element =
     let
         baseAttributes =
@@ -255,6 +257,7 @@ viewElement index element =
                     [ Svg.text attributes.text ]
 
 
+viewStatus : Status -> Html Msg
 viewStatus status =
     let
         ( message, icon ) =
@@ -277,6 +280,7 @@ viewStatus status =
             ]
             
             
+viewToolboxItem : Mode -> ToolboxItem -> Html Msg
 viewToolboxItem mode item =
     case item of 
         Spacer ->
@@ -297,6 +301,7 @@ viewToolboxItem mode item =
                 [ icon ]
 
 
+view : Model -> Html Msg
 view { document, elements, mode, status, toolbox } =
     let
         width = toString document.width
