@@ -369,7 +369,7 @@ view ({ document, elements, mode, status, toolbox } as model) =
         Html.div 
             [ Attributes.class "flex-1 flex-column" ]
             [ Html.div
-                [ Attributes.class "pl shadow-b has-background-link has-text-white" ]
+                [ Attributes.class "p-05 shadow-b has-background-link has-text-white" ]
                 [ Html.span
                     [ Attributes.class "icon pl-1 pr-1" ]
                     [ Icons.file ]

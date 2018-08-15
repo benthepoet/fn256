@@ -38,12 +38,12 @@ html, body {
   box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);
 }
 
-.p-1 {
-  padding: 1rem;
+.p-05 {
+  padding: 0.5em;
 }
 
-.pl {
-  padding: 0.5em;
+.p-1 {
+  padding: 1rem;
 }
 
 .pl-1 {
