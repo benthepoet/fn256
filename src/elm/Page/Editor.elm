@@ -360,10 +360,10 @@ viewToolboxItem mode item =
 
 
 view : Model -> Html Msg
-view ({ document, elements, mode, status, toolbox } as model) =
+view model =
     let
-        width = toString document.width
-        height = toString document.height
+        width = toString model.document.width
+        height = toString model.document.height
         viewBox = String.join " " ["0", "0", width, height]
     in
         Html.div 
@@ -375,8 +375,8 @@ view ({ document, elements, mode, status, toolbox } as model) =
                     [ Icons.file ]
                 , Html.span
                     [ Attributes.class "has-text-white has-text-semi-bold" ]
-                    [ Html.text document.name ]
-                , viewStatus status
+                    [ Html.text model.document.name ]
+                , viewStatus model.status
                 ]
             , Html.div
                 [ Attributes.class "columns flex-1 mb-0 mt-0" ]
@@ -385,7 +385,7 @@ view ({ document, elements, mode, status, toolbox } as model) =
                     [ Elements.columns 
                         [ Html.div
                             [ Attributes.class "column ml-0 mr-0 has-text-centered" ]
-                            <| List.map (viewToolboxItem mode) toolbox
+                            <| List.map (viewToolboxItem model.mode) model.toolbox
                         ]
                     ]
                 , Html.div
@@ -401,7 +401,7 @@ view ({ document, elements, mode, status, toolbox } as model) =
                             , Events.Svg.onMouseUp MouseUp
                             ]
                             <| Array.toList 
-                            <| Array.indexedMap viewElement elements
+                            <| Array.indexedMap viewElement model.elements
                         ]
                     ]
                 , Html.div
