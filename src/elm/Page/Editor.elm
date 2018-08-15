@@ -83,10 +83,17 @@ init id user =
             (Http.toTask <| Request.Document.get token id)
             (Task.map Array.fromList <| Http.toTask <| Request.Element.list token id)
 
+
+getTarget { elements, event } =
+    let
+        getElement { index } =
+            Array.get index elements
+    in
+        Maybe.andThen getElement event
+
+
 update user msg model =
     let
-        getElement = model.elements |> flip Array.get
-        getTarget = Maybe.andThen <| getElement << .index
         token = Maybe.map .token user
     in
         case (model.mode, msg) of
@@ -142,7 +149,7 @@ update user msg model =
                             , { element | elementType = elementType }
                             )
                 in
-                    case Maybe.map2 updateElement model.event <| getTarget model.event of
+                    case Maybe.map2 updateElement model.event <| getTarget model of
                         Nothing ->
                             ( model, Cmd.none)
                             
@@ -155,7 +162,7 @@ update user msg model =
                             )
                 
             (Select, MouseUp _ _) ->
-                case getTarget model.event of
+                case getTarget model of
                     Nothing ->
                         ( { model | event = Nothing }
                         , Cmd.none 
