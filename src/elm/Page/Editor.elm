@@ -257,6 +257,64 @@ viewElement index element =
                     [ Svg.text attributes.text ]
 
 
+viewProperties model =
+    case getTarget model of
+        Nothing ->
+            Html.text "No element selected."
+            
+        Just element ->
+            let
+                baseFields attributes =
+                    (++)
+                        [ Elements.field
+                            [ Elements.label [ Html.text "X" ] 
+                            , Elements.text 
+                                [ Attributes.value <| toString attributes.x ]
+                            ]
+                        , Elements.field
+                            [ Elements.label [ Html.text "Y" ] 
+                            , Elements.text 
+                                [ Attributes.value <| toString attributes.y ]
+                            ]
+                        ]
+            
+                fields =
+                    case element.elementType of
+                        Element.Circle attributes ->
+                            baseFields attributes 
+                                [ Elements.field
+                                    [ Elements.label [ Html.text "Radius" ]
+                                    , Elements.text
+                                        [ Attributes.value <| toString attributes.radius ]
+                                    ]
+                                ]
+                        
+                        Element.Rect attributes ->
+                            baseFields attributes
+                                [ Elements.field
+                                    [ Elements.label [ Html.text "Width" ]
+                                    , Elements.text
+                                        [ Attributes.value <| toString attributes.width ]
+                                    ]
+                                , Elements.field
+                                    [ Elements.label [ Html.text "Height" ]
+                                    , Elements.text
+                                        [ Attributes.value <| toString attributes.height ]
+                                    ]
+                                ]
+                        
+                        Element.TextBox attributes ->
+                            baseFields attributes 
+                                [ Elements.field
+                                    [ Elements.label [ Html.text "Text" ]
+                                    , Elements.text
+                                        [ Attributes.value attributes.text ]
+                                    ]
+                                ]
+            in
+                Html.div [] fields
+
+
 viewStatus : Status -> Html Msg
 viewStatus status =
     let
@@ -302,7 +360,7 @@ viewToolboxItem mode item =
 
 
 view : Model -> Html Msg
-view { document, elements, mode, status, toolbox } =
+view ({ document, elements, mode, status, toolbox } as model) =
     let
         width = toString document.width
         height = toString document.height
@@ -344,6 +402,14 @@ view { document, elements, mode, status, toolbox } =
                             ]
                             <| Array.toList 
                             <| Array.indexedMap viewElement elements
+                        ]
+                    ]
+                , Html.div
+                    [ Attributes.class "column is-narrow pr-0 w-small shadow-l has-background-white" ]
+                    [ Elements.columns 
+                        [ Html.div
+                            [ Attributes.class "p-1" ]
+                            [ viewProperties model ] 
                         ]
                     ]
                 ]

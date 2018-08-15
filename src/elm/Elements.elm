@@ -54,6 +54,11 @@ field =
         [ Attributes.class "field" ]
 
 
+label =
+    Html.label
+        [ Attributes.class "label is-small" ]
+
+
 password attributes =
     Html.input
         ( attributes ++
@@ -72,3 +77,13 @@ spinner =
             [ Attributes.class "fas fa-2x fa-spinner fa-pulse" ]
             []
         ]
+        
+    
+text attributes =
+    Html.input
+        ( attributes ++
+            [ Attributes.class "input is-small" 
+            , Attributes.type_ "text"
+            ]
+        )
+        []
