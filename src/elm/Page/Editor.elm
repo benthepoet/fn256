@@ -21,7 +21,7 @@ import Task
 import View.Icons as Icons
 
 
-type alias DragEvent =
+type alias SelectEvent =
     { index : Int
     , dx : Int
     , dy : Int
@@ -29,7 +29,8 @@ type alias DragEvent =
 
 
 type alias Model =
-    { event : Maybe DragEvent
+    { event : Maybe SelectEvent
+    , dragging : Bool
     , mode : Mode
     , status : Status
     , toolbox : List ToolboxItem
@@ -50,7 +51,6 @@ type Msg
     | ElementCreated (Result Http.Error Element)
     | ElementUpdated (Result Http.Error Element)
     | MouseDown Int Int Int
-    | MouseClick
     | MouseMove Int Int
     | MouseUp Int Int
     | SetMode Mode
@@ -76,7 +76,7 @@ init id user =
             , Tool Icons.font Text
             , Tool Icons.square Shape
             ]
-        model = Model Nothing Select Saved toolbox
+        model = Model Nothing False Select Saved toolbox
         token = Just user.token
     in
         Task.map2 model 
@@ -92,7 +92,7 @@ getTarget { elements, event } =
         Maybe.andThen getElement event
 
 
-moveElement : (Int, Int) -> DragEvent -> Element -> (Int, Element)
+moveElement : (Int, Int) -> SelectEvent -> Element -> (Int, Element)
 moveElement (x, y) { index, dx, dy } element =
     let 
         updateAttributes attributes =
@@ -145,22 +145,28 @@ update user msg model =
                 )
         
             (Select, MouseDown index x y) ->
-                ( { model | event = Just <| DragEvent index x y }
+                ( { model 
+                    | dragging = True
+                    , event = Just <| SelectEvent index x y 
+                    }
                 , Cmd.none
                 )
                 
             (Select, MouseMove x y) ->
-                case Maybe.map2 (moveElement (x, y)) model.event <| getTarget model of
-                    Nothing ->
-                        ( model, Cmd.none)
-                        
-                    Just (index, element) ->
-                        ( { model 
-                            | event = Just <| DragEvent index x y 
-                            , elements = Array.set index element model.elements
-                            }
-                        , Cmd.none
-                        )
+                if model.dragging then
+                    case Maybe.map2 (moveElement (x, y)) model.event <| getTarget model of
+                        Nothing ->
+                            ( model, Cmd.none)
+                            
+                        Just (index, element) ->
+                            ( { model 
+                                | event = Just <| SelectEvent index x y 
+                                , elements = Array.set index element model.elements
+                                }
+                            , Cmd.none
+                            )
+                else
+                    ( model, Cmd.none )
                 
             (Select, MouseUp _ _) ->
                 case getTarget model of
@@ -171,7 +177,7 @@ update user msg model =
                         
                     Just element ->
                         ( { model 
-                            | event = Nothing 
+                            | dragging = False
                             , status = Syncing
                             }
                         , Http.send ElementUpdated 
@@ -201,11 +207,6 @@ update user msg model =
                 , Cmd.none
                 )
                         
-            (_, MouseClick) ->
-                ( Debug.log "model" model 
-                , Cmd.none
-                )
-                        
             (_, SetMode mode) ->
                 ( { model | mode = mode }
                 , Cmd.none
@@ -221,7 +222,6 @@ viewElement index element =
         baseAttributes =
             (++)
                 [ Svg.Attributes.class "cursor-pointer no-select"
-                , Svg.Events.onClick MouseClick
                 , Events.Svg.onMouseDown <| MouseDown index
                 ]
     in
