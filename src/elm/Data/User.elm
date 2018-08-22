@@ -1,5 +1,4 @@
-module Data.User exposing (..)
-
+module Data.User exposing (User, decoder, encoder)
 
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -15,8 +14,8 @@ decoder =
     Decode.map2 User
         (Decode.field "email" Decode.string)
         (Decode.field "token" Decode.string)
-        
-        
+
+
 encoder user =
     Encode.object
         [ ( "email", Encode.string user.email )

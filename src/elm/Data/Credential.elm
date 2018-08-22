@@ -1,5 +1,4 @@
-module Data.Credential exposing (..)
-
+module Data.Credential exposing (encoder)
 
 import Json.Encode as Encode
 

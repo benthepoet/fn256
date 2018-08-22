@@ -1,5 +1,4 @@
-module Route exposing (..)
-
+module Route exposing (ProtectedRoute(..), PublicRoute(..), Route(..), href, navigateTo, parse, route, toPath)
 
 import Html
 import Html.Attributes as Attributes
@@ -28,8 +27,8 @@ toPath : Route -> String
 toPath route =
     case route of
         Protected (Editor id) ->
-            "#/editor/" ++ (toString id)
-    
+            "#/editor/" ++ toString id
+
         Protected Home ->
             "#/"
 
@@ -59,6 +58,7 @@ navigateTo =
 parse location =
     if String.isEmpty location.hash then
         Protected Home
+
     else
         Maybe.withDefault (Public NotFound) (parseHash route location)
 

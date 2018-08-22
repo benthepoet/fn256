@@ -1,12 +1,11 @@
-module Data.Document exposing (..)
-
+module Data.Document exposing (Document, decoder, encoder)
 
 import Json.Decode as Decode
 import Json.Encode as Encode
 
 
 type alias Document =
-    { id: Int
+    { id : Int
     , name : String
     , owner : Int
     , width : Int
@@ -14,7 +13,7 @@ type alias Document =
     }
 
 
-decoder = 
+decoder =
     Decode.map5 Document
         (Decode.field "id" Decode.int)
         (Decode.field "name" Decode.string)
@@ -25,7 +24,7 @@ decoder =
 
 encoder document =
     Encode.object
-        [ ( "id", Encode.int document.id)
+        [ ( "id", Encode.int document.id )
         , ( "name", Encode.string document.name )
         , ( "owner", Encode.int document.owner )
         , ( "width", Encode.int document.width )
