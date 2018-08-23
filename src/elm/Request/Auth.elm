@@ -18,12 +18,11 @@ login email password =
             String.join "/" [ root, "login" ]
 
         request =
-            Api.post url Nothing
+            Api.post url Nothing <| Http.expectJson User.decoder
     in
     Http.request
         { request
             | body = Http.jsonBody <| Credential.encoder email password
-            , expect = Http.expectJson User.decoder
         }
 
 
@@ -34,7 +33,7 @@ signUp email password =
             String.join "/" [ root, "signup" ]
 
         request =
-            Api.post url Nothing
+            Api.post url Nothing <| Http.expectStringResponse (\_ -> Ok ())
     in
     Http.request
         { request

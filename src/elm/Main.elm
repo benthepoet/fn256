@@ -1,5 +1,7 @@
 module Main exposing (Flags, Model, Msg(..), Page(..), PageState(..), frame, init, main, subscriptions, update, view, viewLoading)
 
+import Browser
+import Browser.Navigation as Navigation
 import Data.User exposing (User)
 import Elements
 import Html exposing (Html)
@@ -8,7 +10,6 @@ import Html.Events as Events
 import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Navigation
 import Page.Editor as Editor
 import Page.Home as Home
 import Page.LogIn as LogIn
@@ -18,6 +19,7 @@ import Page.SignUp as SignUp
 import Ports
 import Route
 import Task
+import Url exposing (Url)
 
 
 type alias Flags =
@@ -26,7 +28,8 @@ type alias Flags =
 
 
 type alias Model =
-    { page : PageState
+    { key : Navigation.Key
+    , page : PageState
     , user : Maybe User
     }
 
@@ -40,6 +43,7 @@ type Msg
     | ResetPasswordMsg ResetPassword.Msg
     | RouteChange Route.Route
     | SignUpMsg SignUp.Msg
+    | NoOp
 
 
 type Page
@@ -58,26 +62,28 @@ type PageState
 
 main : Program Flags Model Msg
 main =
-    Navigation.programWithFlags (RouteChange << Route.parse)
+    Browser.application
         { init = init
+        , onUrlChange = (RouteChange << Route.parse)
+        , onUrlRequest = \n -> NoOp
         , update = update
         , subscriptions = subscriptions
         , view = view
         }
 
 
-init : Flags -> Navigation.Location -> ( Model, Cmd Msg )
-init flags location =
+init : Flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
+init flags url key =
     let
         route =
-            Route.parse location
+            Route.parse url
 
         user =
             flags.user
                 |> Decode.decodeValue Data.User.decoder
                 |> Result.toMaybe
     in
-    ( Model Loading user
+    ( Model key Loading user
     , Task.perform RouteChange <| Task.succeed route
     )
 
@@ -129,7 +135,7 @@ update msg model =
                         LogIn.SetUser user ->
                             ( { model | user = Just user }
                             , Cmd.batch
-                                [ Route.navigateTo <| Route.Protected Route.Home
+                                [ Route.navigateTo model.key <| Route.Protected Route.Home
                                 , Ports.syncUser <| Data.User.encoder user
                                 ]
                             )
@@ -144,7 +150,7 @@ update msg model =
         ( LogOut, _ ) ->
             ( { model | user = Nothing }
             , Cmd.batch
-                [ Route.navigateTo <| Route.Public Route.LogIn
+                [ Route.navigateTo model.key <| Route.Public Route.LogIn
                 , Ports.syncUser Encode.null
                 ]
             )
@@ -159,7 +165,7 @@ update msg model =
                 Route.Protected page ->
                     case model.user of
                         Nothing ->
-                            ( model, Route.navigateTo <| Route.Public Route.LogIn )
+                            ( model, Route.navigateTo model.key <| Route.Public Route.LogIn )
 
                         Just user ->
                             case page of
@@ -206,7 +212,7 @@ update msg model =
                                     )
 
                         Just _ ->
-                            ( model, Route.navigateTo <| Route.Protected Route.Home )
+                            ( model, Route.navigateTo model.key <| Route.Protected Route.Home )
 
         ( SignUpMsg subMsg, Loaded (SignUp subModel) ) ->
             let
@@ -276,37 +282,43 @@ viewLoading =
         [ Elements.spinner ]
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
-    case ( model.page, model.user ) of
-        ( Loaded (Editor subModel), Just user ) ->
-            Editor.view subModel
-                |> Html.map EditorMsg
-                |> frame user
-
-        ( Loaded (Home subModel), Just user ) ->
-            Home.view subModel
-                |> Html.map HomeMsg
-                |> frame user
-
-        ( Loaded (LogIn subModel), Nothing ) ->
-            LogIn.view subModel
-                |> Html.map LogInMsg
-
-        ( Loaded NotFound, Nothing ) ->
-            NotFound.view
-
-        ( Loaded (ResetPassword subModel), Nothing ) ->
-            ResetPassword.view
-                |> Html.map ResetPasswordMsg
-
-        ( Loaded (SignUp subModel), Nothing ) ->
-            SignUp.view subModel
-                |> Html.map SignUpMsg
-
-        ( Loading, Just user ) ->
-            viewLoading
-                |> frame user
-
-        _ ->
-            viewLoading
+    let
+        body =
+            case ( model.page, model.user ) of
+                ( Loaded (Editor subModel), Just user ) ->
+                    Editor.view subModel
+                        |> Html.map EditorMsg
+                        |> frame user
+        
+                ( Loaded (Home subModel), Just user ) ->
+                    Home.view subModel
+                        |> Html.map HomeMsg
+                        |> frame user
+        
+                ( Loaded (LogIn subModel), Nothing ) ->
+                    LogIn.view subModel
+                        |> Html.map LogInMsg
+        
+                ( Loaded NotFound, Nothing ) ->
+                    NotFound.view
+        
+                ( Loaded (ResetPassword subModel), Nothing ) ->
+                    ResetPassword.view
+                        |> Html.map ResetPasswordMsg
+        
+                ( Loaded (SignUp subModel), Nothing ) ->
+                    SignUp.view subModel
+                        |> Html.map SignUpMsg
+        
+                ( Loading, Just user ) ->
+                    viewLoading
+                        |> frame user
+        
+                _ ->
+                    viewLoading
+    in
+    { title = "FN256"
+    , body = [ body ]
+    }

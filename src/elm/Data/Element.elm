@@ -79,7 +79,7 @@ decoder =
 
 encoder element =
     let
-        ( elementType, attributes ) =
+        ( elementType, encodedAttributes ) =
             case element.elementType of
                 Circle attributes ->
                     ( Encode.int 1
@@ -111,5 +111,5 @@ encoder element =
     in
     Encode.object
         [ ( "element_type", elementType )
-        , ( "attributes", attributes )
+        , ( "attributes", encodedAttributes )
         ]

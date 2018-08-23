@@ -20,6 +20,9 @@ import Task
 import View.Icons as Icons
 
 
+toString = Debug.toString
+
+
 type alias SelectEvent =
     { index : Int
     , dx : Int

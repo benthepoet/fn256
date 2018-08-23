@@ -12,7 +12,7 @@ root : Int -> String
 root documentId =
     String.join "/"
         [ Request.Document.root
-        , toString documentId
+        , Debug.toString documentId
         , "elements"
         ]
 
@@ -23,12 +23,11 @@ create token document element =
             root document.id
 
         request =
-            Api.post url token
+            Api.post url token <| Http.expectJson Element.decoder
     in
     Http.request
         { request
             | body = Http.jsonBody <| Element.encoder element
-            , expect = Http.expectJson Element.decoder
         }
 
 
@@ -39,28 +38,24 @@ list token documentId =
             root documentId
 
         request =
-            Api.get url token
-    in
-    Http.request
-        { request
-            | expect =
+            Api.get url token <|
                 Http.expectJson <|
                     Decode.at [ "data" ] <|
                         Decode.list Element.decoder
-        }
+    in
+    Http.request request
 
 
 update : Maybe String -> Document -> Element -> Http.Request Element
 update token document element =
     let
         url =
-            String.join "/" [ root document.id, toString element.id ]
+            String.join "/" [ root document.id, Debug.toString element.id ]
 
         request =
-            Api.put url token
+            Api.put url token <| Http.expectJson Element.decoder
     in
     Http.request
         { request
             | body = Http.jsonBody <| Element.encoder element
-            , expect = Http.expectJson Element.decoder
         }

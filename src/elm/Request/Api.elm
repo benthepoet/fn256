@@ -17,7 +17,7 @@ queryString =
     (++) "?" << String.join "&" << List.map param
 
 
-make method url token =
+make method url token expect =
     let
         headers =
             case token of
@@ -31,7 +31,7 @@ make method url token =
     , url = prefix ++ url
     , headers = headers
     , body = Http.emptyBody
-    , expect = Http.expectStringResponse (\_ -> Ok ())
+    , expect = expect
     , timeout = Nothing
     , withCredentials = False
     }

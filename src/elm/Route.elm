@@ -1,9 +1,9 @@
 module Route exposing (ProtectedRoute(..), PublicRoute(..), Route(..), href, navigateTo, parse, route, toPath)
 
+import Browser.Navigation as Navigation
 import Html
 import Html.Attributes as Attributes
-import Navigation
-import UrlParser exposing ((</>), int, map, oneOf, parseHash, s)
+import Url.Parser as Parser exposing ((</>), int, map, oneOf, s)
 
 
 type ProtectedRoute
@@ -24,10 +24,10 @@ type Route
 
 
 toPath : Route -> String
-toPath route =
-    case route of
+toPath from =
+    case from of
         Protected (Editor id) ->
-            "#/editor/" ++ toString id
+            "#/editor/" ++ Debug.toString id
 
         Protected Home ->
             "#/"
@@ -50,17 +50,17 @@ href =
     Attributes.href << toPath
 
 
-navigateTo : Route -> Cmd msg
-navigateTo =
-    Navigation.modifyUrl << toPath
+navigateTo : Navigation.Key -> Route -> Cmd msg
+navigateTo key =
+    (Navigation.replaceUrl key) << toPath
 
 
-parse location =
-    if String.isEmpty location.hash then
+parse url =
+    if String.isEmpty url.path then
         Protected Home
 
     else
-        Maybe.withDefault (Public NotFound) (parseHash route location)
+        Maybe.withDefault (Public NotFound) (Parser.parse route url)
 
 
 route =

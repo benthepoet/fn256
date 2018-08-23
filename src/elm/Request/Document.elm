@@ -14,12 +14,11 @@ create : Maybe String -> Document -> Http.Request Document
 create token document =
     let
         request =
-            Api.post root token
+            Api.post root token <| Http.expectJson Document.decoder
     in
     Http.request
         { request
             | body = Http.jsonBody <| Document.encoder document
-            , expect = Http.expectJson Document.decoder
         }
 
 
@@ -27,13 +26,12 @@ get : Maybe String -> Int -> Http.Request Document
 get token id =
     let
         url =
-            String.join "/" [ root, toString id ]
+            String.join "/" [ root, Debug.toString id ]
 
         request =
-            Api.get url token
+            Api.get url token <| Http.expectJson Document.decoder
     in
-    Http.request
-        { request | expect = Http.expectJson Document.decoder }
+    Http.request request
 
 
 list : Maybe String -> List ( String, String ) -> Http.Request (List Document)
@@ -43,28 +41,24 @@ list token params =
             root ++ Api.queryString params
 
         request =
-            Api.get url token
-    in
-    Http.request
-        { request
-            | expect =
+            Api.get url token <| 
                 Http.expectJson <|
                     Decode.at [ "data" ] <|
                         Decode.list Document.decoder
-        }
+    in
+    Http.request request
 
 
 update : Maybe String -> Document -> Http.Request Document
 update token document =
     let
         url =
-            String.join "/" [ root, toString document.id ]
+            String.join "/" [ root, Debug.toString document.id ]
 
         request =
-            Api.put url token
+            Api.put url token <| Http.expectJson Document.decoder
     in
     Http.request
         { request
             | body = Http.jsonBody <| Document.encoder document
-            , expect = Http.expectJson Document.decoder
         }
