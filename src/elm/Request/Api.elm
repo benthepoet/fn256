@@ -5,7 +5,7 @@ import Http
 import Json.Decode as Decode
 
 
-prefix = "/api"
+prefix = "https://ek512.benpaulhanna.com"
 
 
 queryString : List (String, String) -> String
