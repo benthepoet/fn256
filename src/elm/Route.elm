@@ -27,7 +27,7 @@ toPath : Route -> String
 toPath from =
     case from of
         Protected (Editor id) ->
-            "#/editor/" ++ Debug.toString id
+            "#/editor/" ++ String.fromInt id
 
         Protected Home ->
             "#/"

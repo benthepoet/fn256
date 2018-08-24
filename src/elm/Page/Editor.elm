@@ -20,9 +20,6 @@ import Task
 import View.Icons as Icons
 
 
-toString = Debug.toString
-
-
 type alias SelectEvent =
     { index : Int
     , dx : Int
@@ -240,9 +237,9 @@ viewElement index element =
         Element.Circle attributes ->
             Svg.circle
                 (baseAttributes
-                    [ Svg.Attributes.cx <| toString attributes.x
-                    , Svg.Attributes.cy <| toString attributes.y
-                    , Svg.Attributes.r <| toString attributes.radius
+                    [ Svg.Attributes.cx <| String.fromInt attributes.x
+                    , Svg.Attributes.cy <| String.fromInt attributes.y
+                    , Svg.Attributes.r <| String.fromInt attributes.radius
                     ]
                 )
                 []
@@ -250,10 +247,10 @@ viewElement index element =
         Element.Rect attributes ->
             Svg.rect
                 (baseAttributes
-                    [ Svg.Attributes.x <| toString attributes.x
-                    , Svg.Attributes.y <| toString attributes.y
-                    , Svg.Attributes.width <| toString attributes.width
-                    , Svg.Attributes.height <| toString attributes.height
+                    [ Svg.Attributes.x <| String.fromInt attributes.x
+                    , Svg.Attributes.y <| String.fromInt attributes.y
+                    , Svg.Attributes.width <| String.fromInt attributes.width
+                    , Svg.Attributes.height <| String.fromInt attributes.height
                     ]
                 )
                 []
@@ -261,8 +258,8 @@ viewElement index element =
         Element.TextBox attributes ->
             Svg.text_
                 (baseAttributes
-                    [ Svg.Attributes.x <| toString attributes.x
-                    , Svg.Attributes.y <| toString attributes.y
+                    [ Svg.Attributes.x <| String.fromInt attributes.x
+                    , Svg.Attributes.y <| String.fromInt attributes.y
                     ]
                 )
                 [ Svg.text attributes.text ]
@@ -280,12 +277,12 @@ viewProperties model =
                         [ Elements.field
                             [ Elements.label [ Html.text "X" ]
                             , Elements.text
-                                [ Attributes.value <| toString attributes.x ]
+                                [ Attributes.value <| String.fromInt attributes.x ]
                             ]
                         , Elements.field
                             [ Elements.label [ Html.text "Y" ]
                             , Elements.text
-                                [ Attributes.value <| toString attributes.y ]
+                                [ Attributes.value <| String.fromInt attributes.y ]
                             ]
                         ]
 
@@ -296,7 +293,7 @@ viewProperties model =
                                 [ Elements.field
                                     [ Elements.label [ Html.text "Radius" ]
                                     , Elements.text
-                                        [ Attributes.value <| toString attributes.radius ]
+                                        [ Attributes.value <| String.fromInt attributes.radius ]
                                     ]
                                 ]
 
@@ -305,12 +302,12 @@ viewProperties model =
                                 [ Elements.field
                                     [ Elements.label [ Html.text "Width" ]
                                     , Elements.text
-                                        [ Attributes.value <| toString attributes.width ]
+                                        [ Attributes.value <| String.fromInt attributes.width ]
                                     ]
                                 , Elements.field
                                     [ Elements.label [ Html.text "Height" ]
                                     , Elements.text
-                                        [ Attributes.value <| toString attributes.height ]
+                                        [ Attributes.value <| String.fromInt attributes.height ]
                                     ]
                                 ]
 
@@ -374,10 +371,10 @@ view : Model -> Html Msg
 view model =
     let
         width =
-            toString model.document.width
+            String.fromInt model.document.width
 
         height =
-            toString model.document.height
+            String.fromInt model.document.height
 
         viewBox =
             String.join " " [ "0", "0", width, height ]

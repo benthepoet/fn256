@@ -12,7 +12,7 @@ root : Int -> String
 root documentId =
     String.join "/"
         [ Request.Document.root
-        , Debug.toString documentId
+        , String.fromInt documentId
         , "elements"
         ]
 
@@ -50,7 +50,7 @@ update : Maybe String -> Document -> Element -> Http.Request Element
 update token document element =
     let
         url =
-            String.join "/" [ root document.id, Debug.toString element.id ]
+            String.join "/" [ root document.id, String.fromInt element.id ]
 
         request =
             Api.put url token <| Http.expectJson Element.decoder

@@ -26,7 +26,7 @@ get : Maybe String -> Int -> Http.Request Document
 get token id =
     let
         url =
-            String.join "/" [ root, Debug.toString id ]
+            String.join "/" [ root, String.fromInt id ]
 
         request =
             Api.get url token <| Http.expectJson Document.decoder
@@ -53,7 +53,7 @@ update : Maybe String -> Document -> Http.Request Document
 update token document =
     let
         url =
-            String.join "/" [ root, Debug.toString document.id ]
+            String.join "/" [ root, String.fromInt document.id ]
 
         request =
             Api.put url token <| Http.expectJson Document.decoder
