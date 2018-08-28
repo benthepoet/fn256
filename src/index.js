@@ -1,5 +1,5 @@
 // Import modules
-var Elm = require('./elm/Main.elm');
+var { Elm } = require('./elm/Main.elm');
 
 // Set config
 var config = {
