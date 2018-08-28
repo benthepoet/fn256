@@ -1,5 +1,4 @@
-module Page.LogIn exposing (..)
-
+module Page.LogIn exposing (Model, Msg(..), OutMsg(..), init, update, view)
 
 import Data.User exposing (User)
 import Elements
@@ -30,27 +29,29 @@ type Msg
 type OutMsg
     = NoOp
     | SetUser User
-    
 
-init = 
+
+init =
     Model "" False False ""
 
 
 update msg model =
     case msg of
         LoginResponse (Err _) ->
-            ( { model 
+            ( { model
                 | isError = True
-                , isLoading = False }
+                , isLoading = False
+              }
             , Cmd.none
-            , NoOp 
+            , NoOp
             )
-            
+
         LoginResponse (Ok user) ->
-            ( { model 
+            ( { model
                 | isError = False
-                , isLoading = False }
-            , Cmd.none 
+                , isLoading = False
+              }
+            , Cmd.none
             , SetUser user
             )
 
@@ -67,15 +68,16 @@ update msg model =
             )
 
         Submit ->
-            ( { model 
+            ( { model
                 | isError = False
-                , isLoading = True }
-            , Http.send LoginResponse <| Auth.login model.email model.password 
+                , isLoading = True
+              }
+            , Http.send LoginResponse <| Auth.login model.email model.password
             , NoOp
             )
 
 
-view model = 
+view model =
     Elements.columns
         [ Elements.column []
         , Html.div
@@ -94,6 +96,7 @@ view model =
                                 [ Attributes.class "message-body p-05" ]
                                 [ Html.text "There was a problem with your login." ]
                             ]
+
                       else
                         Html.div [] []
                     , Html.form
@@ -103,7 +106,7 @@ view model =
                                 [ Attributes.class "control has-icons-left " ]
                                 [ Elements.email
                                     [ Attributes.value model.email
-                                    , Events.onInput TypeEmail 
+                                    , Events.onInput TypeEmail
                                     ]
                                 , Html.span
                                     [ Attributes.class "icon is-small is-left" ]
@@ -123,17 +126,24 @@ view model =
                                 ]
                             ]
                         , Elements.field
-                            [ Html.button 
-                                [ Attributes.class <| "button is-link full-width" ++ if model.isLoading then " is-loading" else ""
+                            [ Html.button
+                                [ Attributes.class <|
+                                    "button is-link full-width"
+                                        ++ (if model.isLoading then
+                                                " is-loading"
+
+                                            else
+                                                ""
+                                           )
                                 , Attributes.type_ "submit"
                                 ]
-                                [ Html.text "Log In" ]  
+                                [ Html.text "Log In" ]
                             ]
                         , Html.div
                             [ Attributes.class "content has-text-centered mt-1" ]
                             [ Html.text "Don't have an account? "
-                            , Html.a 
-                                [ Route.href <| Route.Public Route.SignUp ] 
+                            , Html.a
+                                [ Route.href <| Route.Public Route.SignUp ]
                                 [ Html.text "Sign Up" ]
                             ]
                         ]
@@ -141,7 +151,7 @@ view model =
                 ]
             , Html.div
                 [ Attributes.class "has-text-centered content mt-1" ]
-                [ Html.a 
+                [ Html.a
                     [ Route.href <| Route.Public Route.ResetPassword ]
                     [ Html.text "Forgot your password?" ]
                 ]

@@ -1,5 +1,4 @@
-module Request.Api exposing (..)
-
+module Request.Api exposing (get, make, post, prefix, put, queryString)
 
 import Http
 import Json.Decode as Decode
@@ -8,33 +7,33 @@ import Json.Decode as Decode
 prefix = "https://ek512.benpaulhanna.com"
 
 
-queryString : List (String, String) -> String
+queryString : List ( String, String ) -> String
 queryString =
     let
-        param (key, value) =
+        param ( key, value ) =
             key ++ "=" ++ value
     in
-        (++) "?" << String.join "&" << List.map param
+    (++) "?" << String.join "&" << List.map param
 
 
-make method url token =
+make method url token expect =
     let
-        headers = 
+        headers =
             case token of
                 Nothing ->
                     []
-                    
+
                 Just value ->
                     [ Http.header "Authorization" <| "Bearer " ++ value ]
     in
-        { method = method
-        , url = prefix ++ url
-        , headers = headers
-        , body = Http.emptyBody
-        , expect = Http.expectStringResponse (\_ -> Ok ())
-        , timeout = Nothing
-        , withCredentials = False
-        }
+    { method = method
+    , url = prefix ++ url
+    , headers = headers
+    , body = Http.emptyBody
+    , expect = expect
+    , timeout = Nothing
+    , withCredentials = False
+    }
 
 
 get =
@@ -43,7 +42,7 @@ get =
 
 post =
     make "POST"
-    
-    
-put = 
+
+
+put =
     make "PUT"

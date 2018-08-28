@@ -1,5 +1,4 @@
-module Data.Element exposing (..)
-
+module Data.Element exposing (CircleAttributes, Element, ElementType(..), RectAttributes, TextBoxAttributes, decodeElementType, decoder, encoder)
 
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -16,7 +15,7 @@ type alias CircleAttributes =
     , y : Int
     , radius : Int
     }
-    
+
 
 type alias RectAttributes =
     { x : Int
@@ -24,7 +23,7 @@ type alias RectAttributes =
     , width : Int
     , height : Int
     }
-    
+
 
 type alias TextBoxAttributes =
     { x : Int
@@ -44,34 +43,33 @@ decodeElementType elementType =
         attributesDecoder =
             case elementType of
                 1 ->
-                    Decode.map Circle 
-                        <| Decode.map3 CircleAttributes
+                    Decode.map Circle <|
+                        Decode.map3 CircleAttributes
                             (Decode.field "x" Decode.int)
                             (Decode.field "y" Decode.int)
                             (Decode.field "radius" Decode.int)
-                    
+
                 2 ->
-                    Decode.map Rect 
-                        <| Decode.map4 RectAttributes
+                    Decode.map Rect <|
+                        Decode.map4 RectAttributes
                             (Decode.field "x" Decode.int)
                             (Decode.field "y" Decode.int)
                             (Decode.field "width" Decode.int)
                             (Decode.field "height" Decode.int)
-                            
+
                 3 ->
-                    Decode.map TextBox
-                        <| Decode.map3 TextBoxAttributes
+                    Decode.map TextBox <|
+                        Decode.map3 TextBoxAttributes
                             (Decode.field "x" Decode.int)
                             (Decode.field "y" Decode.int)
                             (Decode.field "text" Decode.string)
-                    
+
                 _ ->
                     Decode.fail "The element type is invalid."
-                    
     in
-        Decode.map2 Element
-            (Decode.field "id" Decode.int)
-            (Decode.field "attributes" attributesDecoder)
+    Decode.map2 Element
+        (Decode.field "id" Decode.int)
+        (Decode.field "attributes" attributesDecoder)
 
 
 decoder =
@@ -80,38 +78,38 @@ decoder =
 
 
 encoder element =
-    let 
-        ( elementType, attributes ) =
+    let
+        ( elementType, encodedAttributes ) =
             case element.elementType of
                 Circle attributes ->
                     ( Encode.int 1
-                    , Encode.object 
-                        [ ("x", Encode.int attributes.x)
-                        , ("y", Encode.int attributes.y)
-                        , ("radius", Encode.int attributes.radius)
+                    , Encode.object
+                        [ ( "x", Encode.int attributes.x )
+                        , ( "y", Encode.int attributes.y )
+                        , ( "radius", Encode.int attributes.radius )
                         ]
                     )
-                    
+
                 Rect attributes ->
                     ( Encode.int 2
-                    , Encode.object 
-                        [ ("x", Encode.int attributes.x)
-                        , ("y", Encode.int attributes.y)
-                        , ("width", Encode.int attributes.width)
-                        , ("height", Encode.int attributes.height)
+                    , Encode.object
+                        [ ( "x", Encode.int attributes.x )
+                        , ( "y", Encode.int attributes.y )
+                        , ( "width", Encode.int attributes.width )
+                        , ( "height", Encode.int attributes.height )
                         ]
                     )
-                    
+
                 TextBox attributes ->
                     ( Encode.int 3
-                    , Encode.object 
-                        [ ("x", Encode.int attributes.x)
-                        , ("y", Encode.int attributes.y)
-                        , ("text", Encode.string attributes.text)
+                    , Encode.object
+                        [ ( "x", Encode.int attributes.x )
+                        , ( "y", Encode.int attributes.y )
+                        , ( "text", Encode.string attributes.text )
                         ]
                     )
     in
-        Encode.object 
-            [ ("element_type", elementType)
-            , ("attributes", attributes)
-            ]
+    Encode.object
+        [ ( "element_type", elementType )
+        , ( "attributes", encodedAttributes )
+        ]

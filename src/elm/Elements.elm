@@ -1,5 +1,4 @@
-module Elements exposing (..)
-
+module Elements exposing (column, columns, confirmPassword, email, error, field, label, password, spinner, text)
 
 import Html
 import Html.Attributes as Attributes
@@ -17,40 +16,40 @@ columns =
 
 confirmPassword attributes =
     Html.input
-        ( attributes ++
-            [ Attributes.class "input" 
-            , Attributes.type_ "password"
-            , Attributes.placeholder "Confirm Password"
-            ]
+        (attributes
+            ++ [ Attributes.class "input"
+               , Attributes.type_ "password"
+               , Attributes.placeholder "Confirm Password"
+               ]
         )
         []
 
 
-email attributes = 
-    Html.input 
-        ( attributes ++
-            [ Attributes.class "input" 
-            , Attributes.type_ "email"
-            , Attributes.placeholder "Email"
-            ]
+email attributes =
+    Html.input
+        (attributes
+            ++ [ Attributes.class "input"
+               , Attributes.type_ "email"
+               , Attributes.placeholder "Email"
+               ]
         )
         []
 
 
-error message = 
-    Html.div 
+error message =
+    Html.div
         [ Attributes.class "has-text-centered mt-4" ]
         [ Html.h2
             [ Attributes.class "subtitle is-2" ]
             [ Html.text "Error" ]
-        , Html.h4 
+        , Html.h4
             [ Attributes.class "subtitle is-5" ]
             [ Html.text message ]
         ]
 
 
 field =
-    Html.div 
+    Html.div
         [ Attributes.class "field" ]
 
 
@@ -61,11 +60,11 @@ label =
 
 password attributes =
     Html.input
-        ( attributes ++
-            [ Attributes.class "input" 
-            , Attributes.type_ "password"
-            , Attributes.placeholder "Password"
-            ]
+        (attributes
+            ++ [ Attributes.class "input"
+               , Attributes.type_ "password"
+               , Attributes.placeholder "Password"
+               ]
         )
         []
 
@@ -77,13 +76,13 @@ spinner =
             [ Attributes.class "fas fa-2x fa-spinner fa-pulse" ]
             []
         ]
-        
-    
+
+
 text attributes =
     Html.input
-        ( attributes ++
-            [ Attributes.class "input is-small" 
-            , Attributes.type_ "text"
-            ]
+        (attributes
+            ++ [ Attributes.class "input is-small"
+               , Attributes.type_ "text"
+               ]
         )
         []

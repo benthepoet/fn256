@@ -1,5 +1,4 @@
-module Page.NotFound exposing (..)
-
+module Page.NotFound exposing (view)
 
 import Elements
 import Html
@@ -10,12 +9,12 @@ view =
     Elements.columns
         [ Elements.column []
         , Elements.column
-            [ Html.div 
+            [ Html.div
                 [ Attributes.class "has-text-centered mt-4" ]
                 [ Html.h2
                     [ Attributes.class "subtitle is-2" ]
                     [ Html.text "Error" ]
-                , Html.h4 
+                , Html.h4
                     [ Attributes.class "subtitle is-5" ]
                     [ Html.text "The page you requested was not found." ]
                 ]

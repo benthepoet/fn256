@@ -1,5 +1,4 @@
-module Page.ResetPassword exposing (..)
-
+module Page.ResetPassword exposing (Model, Msg(..), init, update, view)
 
 import Elements
 import Html
@@ -18,7 +17,7 @@ type Msg
     = TypeEmail String
 
 
-init = 
+init =
     Model ""
 
 
@@ -28,7 +27,7 @@ update msg model =
             { model | email = email }
 
 
-view = 
+view =
     Elements.columns
         [ Elements.column []
         , Html.div
@@ -45,7 +44,7 @@ view =
                         [ Elements.field
                             [ Html.p
                                 [ Attributes.class "control has-icons-left " ]
-                                [ Elements.email 
+                                [ Elements.email
                                     [ Events.onInput TypeEmail ]
                                 , Html.span
                                     [ Attributes.class "icon is-small is-left" ]
@@ -53,20 +52,20 @@ view =
                                 ]
                             ]
                         , Elements.field
-                            [ Html.button 
+                            [ Html.button
                                 [ Attributes.class "button is-link full-width"
                                 , Attributes.type_ "button"
                                 ]
-                                [ Html.text "Reset Password" ]  
+                                [ Html.text "Reset Password" ]
                             ]
                         , Html.div
                             [ Attributes.class "content has-text-centered mt-1" ]
-                            [ Html.a 
-                                [ Route.href <| Route.Public Route.LogIn ] 
+                            [ Html.a
+                                [ Route.href <| Route.Public Route.LogIn ]
                                 [ Html.text "Log In" ]
                             , Html.text " or "
-                            , Html.a 
-                                [ Route.href <| Route.Public Route.SignUp ] 
+                            , Html.a
+                                [ Route.href <| Route.Public Route.SignUp ]
                                 [ Html.text "Sign Up" ]
                             ]
                         ]
