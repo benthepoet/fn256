@@ -1,6 +1,5 @@
 // Import modules
 var Elm = require('./elm/Main.elm');
-require('./css/style.css');
 
 // Set config
 var config = {
@@ -15,7 +14,7 @@ var flags = {
 };
 
 // Run the application
-var app = Elm.Main.fullscreen(flags);
+var app = Elm.Main.init({ node: document.querySelector('main'), flags: flags });
 
 // Set subscriptions
 app.ports.getDocumentPosition.subscribe(getDocumentPosition);
