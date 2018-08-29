@@ -40,6 +40,7 @@ type Msg
     | HomeMsg Home.Msg
     | LogInMsg LogIn.Msg
     | LogOut
+    | NavigateTo Route.Route
     | ResetPasswordMsg ResetPassword.Msg
     | RouteChange Route.Route
     | SignUpMsg SignUp.Msg
@@ -64,7 +65,7 @@ routeRequest : UrlRequest -> Msg
 routeRequest urlRequest = 
     case urlRequest of
         Browser.Internal url ->
-            RouteChange <| Route.parse url
+            NavigateTo <| Route.parse url
             
         Browser.External url ->
             NoOp
@@ -163,6 +164,11 @@ update msg model =
                 [ Route.navigateTo model.key <| Route.Public Route.LogIn
                 , Ports.syncUser Encode.null
                 ]
+            )
+
+        ( NavigateTo route, _ ) ->
+            ( model
+            , Route.navigateTo model.key route
             )
 
         ( ResetPasswordMsg subMsg, Loaded (ResetPassword subModel) ) ->
