@@ -14,7 +14,7 @@ var flags = {
 };
 
 // Run the application
-var app = Elm.Main.init({ node: document.querySelector('main'), flags: flags });
+var app = Elm.Main.init({ flags: flags });
 
 // Set subscriptions
 app.ports.getDocumentPosition.subscribe(getDocumentPosition);
