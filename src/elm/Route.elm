@@ -52,7 +52,7 @@ href =
 
 navigateTo : Navigation.Key -> Route -> Cmd msg
 navigateTo key =
-    (Navigation.pushUrl key) << toPath
+    (Navigation.replaceUrl key) << toPath
 
 
 parse url =
