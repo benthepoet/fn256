@@ -3,7 +3,7 @@ module Route exposing (ProtectedRoute(..), PublicRoute(..), Route(..), href, nav
 import Browser.Navigation as Navigation
 import Html
 import Html.Attributes as Attributes
-import Url.Parser as Parser exposing ((</>), int, map, oneOf, s)
+import Url.Parser as Parser exposing ((</>), int, map, oneOf, s, top)
 
 
 type ProtectedRoute
@@ -27,22 +27,22 @@ toPath : Route -> String
 toPath from =
     case from of
         Protected (Editor id) ->
-            "#/editor/" ++ String.fromInt id
+            "/editor/" ++ String.fromInt id
 
         Protected Home ->
-            "#/"
+            "/"
 
         Public LogIn ->
-            "#/login"
+            "/login"
 
         Public NotFound ->
-            "#/notfound"
+            "/notfound"
 
         Public ResetPassword ->
-            "#/resetpassword"
+            "/resetpassword"
 
         Public SignUp ->
-            "#/signup"
+            "/signup"
 
 
 href : Route -> Html.Attribute msg
@@ -66,7 +66,7 @@ parse url =
 route =
     oneOf
         [ map (Protected << Editor) (s "editor" </> int)
-        , map (Protected Home) (s "")
+        , map (Protected Home) top
         , map (Public LogIn) (s "login")
         , map (Public ResetPassword) (s "resetpassword")
         , map (Public SignUp) (s "signup")

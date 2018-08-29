@@ -1,6 +1,6 @@
 module Main exposing (Flags, Model, Msg(..), Page(..), PageState(..), frame, init, main, subscriptions, update, view, viewLoading)
 
-import Browser
+import Browser exposing (UrlRequest)
 import Browser.Navigation as Navigation
 import Data.User exposing (User)
 import Elements
@@ -60,12 +60,22 @@ type PageState
     | Loaded Page
 
 
+routeRequest : UrlRequest -> Msg
+routeRequest urlRequest = 
+    case urlRequest of
+        Browser.Internal url ->
+            RouteChange <| Route.parse url
+            
+        Browser.External url ->
+            NoOp
+
+
 main : Program Flags Model Msg
 main =
     Browser.application
         { init = init
         , onUrlChange = (RouteChange << Route.parse)
-        , onUrlRequest = \n -> NoOp
+        , onUrlRequest = routeRequest
         , update = update
         , subscriptions = subscriptions
         , view = view
