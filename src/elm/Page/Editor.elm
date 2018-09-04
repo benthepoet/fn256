@@ -53,6 +53,7 @@ type Msg
     | MouseMove Int Int
     | MouseUp Int Int
     | SetMode Mode
+    | UpdateRadius Int (Maybe Int)
 
 
 type Status
@@ -90,13 +91,18 @@ init id user =
 getTarget { elements, event } =
     let
         getElement { index } =
-            Array.get index elements
+            case Array.get index elements of
+                Nothing ->
+                    Nothing
+                    
+                Just element ->
+                    Just (index, element)
     in
     Maybe.andThen getElement event
 
 
-moveElement : ( Int, Int ) -> SelectEvent -> Element -> ( Int, Element )
-moveElement ( x, y ) { index, dx, dy } element =
+moveElement : ( Int, Int ) -> SelectEvent -> ( Int, Element ) -> ( Int, Element )
+moveElement ( x, y ) { index, dx, dy } (_, element) =
     let
         updateAttributes attributes =
             { attributes
@@ -183,7 +189,7 @@ update user msg model =
                     , Cmd.none
                     )
 
-                Just element ->
+                Just (index, element) ->
                     ( { model
                         | dragging = False
                         , status = Syncing
@@ -219,6 +225,27 @@ update user msg model =
             ( { model | mode = mode }
             , Cmd.none
             )
+            
+        ( _, UpdateRadius index (Just value) ) ->
+            case Array.get index model.elements of
+                Nothing ->
+                    ( model, Cmd.none )
+                    
+                Just element ->
+                    case element.elementType of
+                        Element.Circle attributes ->
+                            let
+                                newElement = 
+                                    { element 
+                                    | elementType = Element.Circle { attributes | radius = value }
+                                    }
+                            in
+                            ( { model | elements = Array.set index newElement model.elements }
+                            , Cmd.none
+                            )
+                            
+                        _ ->
+                            ( model, Cmd.none )
 
         ( _, _ ) ->
             ( model, Cmd.none )
@@ -270,7 +297,7 @@ viewProperties model =
         Nothing ->
             Html.text "No element selected."
 
-        Just element ->
+        Just (index, element) ->
             let
                 baseFields attributes =
                     (++)
@@ -293,7 +320,9 @@ viewProperties model =
                                 [ Elements.field
                                     [ Elements.label [ Html.text "Radius" ]
                                     , Elements.text
-                                        [ Attributes.value <| String.fromInt attributes.radius ]
+                                        [ Attributes.value <| String.fromInt attributes.radius 
+                                        , Events.onInput (String.toInt >> (UpdateRadius index)) 
+                                        ]
                                     ]
                                 ]
 
