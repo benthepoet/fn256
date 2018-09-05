@@ -49,10 +49,14 @@ type Msg
     = DocumentPosition ( Int, Int )
     | ElementCreated (Result Http.Error Element)
     | ElementUpdated (Result Http.Error Element)
-    | MouseDown Int (Int, Int)
+    | MouseAction MouseMsg
+    | SetMode Mode
+
+
+type MouseMsg
+    = MouseDown Int (Int, Int)
     | MouseMove (Int, Int)
     | MouseUp (Int, Int)
-    | SetMode Mode
 
 
 type Status
@@ -114,71 +118,82 @@ update user msg model =
         token =
             Maybe.map .token user
     in
-    case ( model.mode, msg ) of
-        ( Shape, DocumentPosition ( x, y ) ) ->
+    case msg of
+        DocumentPosition ( x, y ) ->
             let
                 size =
                     50
 
-                element = Element.rect
+                rect = Element.rect
             in
             ( { model | status = Syncing }
             , Http.send ElementCreated <|
-                Request.Element.create token model.document element
+                Request.Element.create token model.document
+                    { rect
+                    | x = x - size // 2 
+                    , y = y - size // 2
+                    , width = size
+                    , height = size
+                    }
             )
-
-        ( Shape, MouseUp (x, y) ) ->
-            ( model
-            , Ports.getDocumentPosition ( x, y )
-            )
-
-        ( Select, MouseDown index (x, y) ) ->
-            ( { model
-                | dragging = True
-                , event = Just <| SelectEvent index x y
-              }
-            , Cmd.none
-            )
-
-        ( Select, MouseMove (x, y) ) ->
-            if model.dragging then
-                case Maybe.map2 (moveElement ( x, y )) model.event <| getTarget model of
-                    Nothing ->
-                        ( model, Cmd.none )
-
-                    Just ( index, element ) ->
-                        ( { model
-                            | event = Just <| SelectEvent index x y
-                            , elements = Array.set index element model.elements
-                          }
-                        , Cmd.none
-                        )
-
-            else
-                ( model, Cmd.none )
-
-        ( Select, MouseUp _ ) ->
-            case getTarget model of
-                Nothing ->
-                    ( { model | event = Nothing }
+    
+        MouseAction mouseMsg ->
+            case (model.mode, mouseMsg) of
+                ( Shape, MouseUp (x, y) ) ->
+                    ( model
+                    , Ports.getDocumentPosition ( x, y )
+                    )
+        
+                ( Select, MouseDown index (x, y) ) ->
+                    ( { model
+                        | dragging = True
+                        , event = Just <| SelectEvent index x y
+                      }
                     , Cmd.none
                     )
+        
+                ( Select, MouseMove (x, y) ) ->
+                    if model.dragging then
+                        case Maybe.map2 (moveElement ( x, y )) model.event <| getTarget model of
+                            Nothing ->
+                                ( model, Cmd.none )
+        
+                            Just ( index, element ) ->
+                                ( { model
+                                    | event = Just <| SelectEvent index x y
+                                    , elements = Array.set index element model.elements
+                                  }
+                                , Cmd.none
+                                )
+        
+                    else
+                        ( model, Cmd.none )
+        
+                ( Select, MouseUp _ ) ->
+                    case getTarget model of
+                        Nothing ->
+                            ( { model | event = Nothing }
+                            , Cmd.none
+                            )
+        
+                        Just (index, element) ->
+                            ( { model
+                                | dragging = False
+                                , status = Syncing
+                              }
+                            , Http.send ElementUpdated <|
+                                Request.Element.update token model.document element
+                            )
+                            
+                ( _, _ ) ->
+                    ( model, Cmd.none )
 
-                Just (index, element) ->
-                    ( { model
-                        | dragging = False
-                        , status = Syncing
-                      }
-                    , Http.send ElementUpdated <|
-                        Request.Element.update token model.document element
-                    )
-
-        ( _, ElementCreated (Err _) ) ->
+        ElementCreated (Err _) ->
             ( { model | status = SyncFailure }
             , Cmd.none
             )
 
-        ( _, ElementCreated (Ok element) ) ->
+        ElementCreated (Ok element) ->
             ( { model
                 | elements = Array.push element model.elements
                 , status = Saved
@@ -186,23 +201,20 @@ update user msg model =
             , Cmd.none
             )
 
-        ( _, ElementUpdated (Err _) ) ->
+        ElementUpdated (Err _) ->
             ( { model | status = SyncFailure }
             , Cmd.none
             )
 
-        ( _, ElementUpdated (Ok element) ) ->
+        ElementUpdated (Ok element) ->
             ( { model | status = Saved }
             , Cmd.none
             )
 
-        ( _, SetMode mode ) ->
+        SetMode mode ->
             ( { model | mode = mode }
             , Cmd.none
             )
-
-        ( _, _ ) ->
-            ( model, Cmd.none )
 
 
 viewElement : Int -> Element -> Svg Msg
@@ -211,7 +223,7 @@ viewElement index element =
         baseAttributes =
             (++)
                 [ Svg.Attributes.class "cursor-pointer no-select"
-                , Events.Svg.onMouseDown <| MouseDown index
+                , Events.Svg.onMouseDown <| MouseAction << (MouseDown index)
                 ]
     in
     case element.elementType of
@@ -392,8 +404,8 @@ view model =
                         , Svg.Attributes.width width
                         , Svg.Attributes.height height
                         , Svg.Attributes.viewBox viewBox
-                        , Events.Svg.onMouseMove MouseMove
-                        , Events.Svg.onMouseUp MouseUp
+                        , Events.Svg.onMouseMove <| MouseAction << MouseMove
+                        , Events.Svg.onMouseUp <| MouseAction << MouseUp
                         ]
                       <|
                         Array.toList <|
