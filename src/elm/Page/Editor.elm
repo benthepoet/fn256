@@ -1,6 +1,7 @@
-module Page.Editor exposing (Mode(..), Model, Msg(..), SelectEvent, Status(..), ToolboxItem(..), getTarget, init, moveElement, update, view, viewElement, viewProperties, viewStatus, viewToolboxItem)
+module Page.Editor exposing (Model, Msg(..), init, update, view)
 
 import Array exposing (Array)
+import Browser.Dom
 import Data.Document exposing (Document)
 import Data.Element as Element exposing (Element)
 import Elements
@@ -10,7 +11,6 @@ import Html.Attributes as Attributes
 import Html.Events as Events
 import Http
 import Json.Decode as Decode
-import Ports
 import Request.Document
 import Request.Element
 import Svg exposing (Svg)
@@ -38,6 +38,11 @@ type alias Model =
     }
 
 
+type Error
+    = Dom Browser.Dom.Error
+    | Http Http.Error
+
+
 type Mode
     = Barcode
     | Select
@@ -46,8 +51,7 @@ type Mode
 
 
 type Msg
-    = DocumentPosition ( Int, Int )
-    | ElementCreated (Result Http.Error Element)
+    = ElementCreated (Result Error Element)
     | ElementUpdated (Result Http.Error Element)
     | MouseAction MouseMsg
     | SetMode Mode
@@ -119,29 +123,33 @@ update user msg model =
             Maybe.map .token user
     in
     case msg of
-        DocumentPosition ( x, y ) ->
-            let
-                size =
-                    50
-
-                rect = Element.rect
-            in
-            ( { model | status = Syncing }
-            , Http.send ElementCreated <|
-                Request.Element.create token model.document
-                    { rect
-                    | x = x - size // 2 
-                    , y = y - size // 2
-                    , width = size
-                    , height = size
-                    }
-            )
-    
         MouseAction mouseMsg ->
             case (model.mode, mouseMsg) of
                 ( Shape, MouseUp (x, y) ) ->
-                    ( model
-                    , Ports.getDocumentPosition ( x, y )
+                    let
+                        findElement = 
+                            Task.mapError Dom <| Browser.Dom.getElement "svg-document"
+                    
+                        sendRequest { element } =
+                            let
+                                size =
+                                    50
+                                
+                                rect = Element.rect
+                            in
+                            Task.mapError Http
+                                <| Http.toTask 
+                                <| Request.Element.create token model.document
+                                    { rect
+                                    | x = x - (round element.x) - size // 2 
+                                    , y = y - (round element.y) - size // 2
+                                    , width = size
+                                    , height = size
+                                    }
+                    in
+                    ( { model | status = Syncing }
+                    , Task.attempt ElementCreated 
+                        <| Task.andThen sendRequest findElement
                     )
         
                 ( Select, MouseDown index (x, y) ) ->
@@ -400,7 +408,8 @@ view model =
                 [ Html.div
                     [ Attributes.class "mt-1" ]
                     [ Svg.svg
-                        [ Svg.Attributes.class "shadow has-background-white"
+                        [ Svg.Attributes.id "svg-document"
+                        , Svg.Attributes.class "shadow has-background-white"
                         , Svg.Attributes.width width
                         , Svg.Attributes.height height
                         , Svg.Attributes.viewBox viewBox

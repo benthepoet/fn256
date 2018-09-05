@@ -101,7 +101,7 @@ init flags url key =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Ports.documentPosition <| EditorMsg << Editor.DocumentPosition
+    Sub.none
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
