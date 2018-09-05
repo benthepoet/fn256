@@ -5,6 +5,7 @@ import Browser.Dom
 import Data.Document exposing (Document)
 import Data.Element as Element exposing (Element)
 import Elements
+import Events.Html
 import Events.Svg
 import Html exposing (Html)
 import Html.Attributes as Attributes
@@ -51,7 +52,8 @@ type Mode
 
 
 type Msg
-    = ElementCreated (Result Error Element)
+    = ChangeProperty Property
+    | ElementCreated (Result Error Element)
     | ElementUpdated (Result Http.Error Element)
     | MouseAction MouseMsg
     | SetMode Mode
@@ -61,6 +63,10 @@ type MouseMsg
     = MouseDown Int ( Int, Int )
     | MouseMove ( Int, Int )
     | MouseUp ( Int, Int )
+
+
+type Property
+    = Radius Int
 
 
 type Status
@@ -124,6 +130,24 @@ update user msg model =
             Maybe.map .token user
     in
     case msg of
+        ChangeProperty (Radius radius) ->
+            let
+                setElement (index, element) =
+                    let 
+                        newElement = { element | radius = radius }
+                    in
+                    Array.set index newElement model.elements
+                    
+            in
+            case Maybe.map setElement <| getTarget model of
+                Nothing ->
+                    (model, Cmd.none)
+                    
+                Just elements ->
+                    ( { model | elements = Debug.log "els" elements }
+                    , Cmd.none
+                    )
+    
         MouseAction mouseMsg ->
             case ( model.mode, mouseMsg ) of
                 ( Shape, MouseUp ( x, y ) ) ->
@@ -296,8 +320,10 @@ viewProperties model =
                             baseFields
                                 [ Elements.field
                                     [ Elements.label [ Html.text "Radius" ]
-                                    , Elements.text
-                                        [ Attributes.value <| String.fromInt element.radius ]
+                                    , Elements.number
+                                        [ Attributes.value <| String.fromInt element.radius 
+                                        , Events.Html.onInputInt <| ChangeProperty << Radius
+                                        ]
                                     ]
                                 ]
 

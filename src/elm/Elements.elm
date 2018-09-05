@@ -1,4 +1,4 @@
-module Elements exposing (column, columns, confirmPassword, email, error, field, label, password, spinner, text)
+module Elements exposing (column, columns, confirmPassword, email, error, field, label, number, password, spinner, text)
 
 import Html
 import Html.Attributes as Attributes
@@ -58,12 +58,25 @@ label =
         [ Attributes.class "label is-small" ]
 
 
+number =
+    smallInput "number"
+
 password attributes =
     Html.input
         (attributes
             ++ [ Attributes.class "input"
                , Attributes.type_ "password"
                , Attributes.placeholder "Password"
+               ]
+        )
+        []
+
+
+smallInput type_ attributes =
+    Html.input
+        (attributes
+            ++ [ Attributes.class "input is-small"
+               , Attributes.type_ type_
                ]
         )
         []
@@ -78,11 +91,5 @@ spinner =
         ]
 
 
-text attributes =
-    Html.input
-        (attributes
-            ++ [ Attributes.class "input is-small"
-               , Attributes.type_ "text"
-               ]
-        )
-        []
+text =
+    smallInput "text"
