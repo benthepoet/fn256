@@ -8,7 +8,7 @@ mousePositionEvent name x y msg =
     let
         decoder =
             Decode.map msg <|
-                Decode.map2 (\a b -> (a, b))
+                Decode.map2 (\a b -> ( a, b ))
                     (Decode.field x Decode.int)
                     (Decode.field y Decode.int)
     in

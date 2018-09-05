@@ -20,9 +20,9 @@ type alias Element =
     , radius : Int
     , text : String
     }
-    
-    
-type alias Input = 
+
+
+type alias Input =
     { elementType : ElementType
     , x : Int
     , y : Int
@@ -43,18 +43,21 @@ build elementType =
     , radius = 0
     , text = ""
     }
-    
-    
+
+
 circle : Input
-circle = build Circle
+circle =
+    build Circle
 
 
 rect : Input
-rect = build Rect
+rect =
+    build Rect
 
 
 textBox : Input
-textBox = build TextBox
+textBox =
+    build TextBox
 
 
 decodeElementType elementType =
@@ -64,10 +67,10 @@ decodeElementType elementType =
 
         2 ->
             Decode.succeed Rect
-            
+
         3 ->
             Decode.succeed TextBox
-            
+
         _ ->
             Decode.fail "The element type is invalid."
 
@@ -88,10 +91,10 @@ encodeElementType elementType =
     case elementType of
         Circle ->
             Encode.int 1
-            
+
         Rect ->
             Encode.int 2
-            
+
         TextBox ->
             Encode.int 3
 

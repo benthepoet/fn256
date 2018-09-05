@@ -41,7 +41,7 @@ list token params =
             root ++ Api.queryString params
 
         request =
-            Api.get url token <| 
+            Api.get url token <|
                 Http.expectJson <|
                     Decode.at [ "data" ] <|
                         Decode.list Document.decoder

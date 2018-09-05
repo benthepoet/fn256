@@ -58,9 +58,9 @@ type Msg
 
 
 type MouseMsg
-    = MouseDown Int (Int, Int)
-    | MouseMove (Int, Int)
-    | MouseUp (Int, Int)
+    = MouseDown Int ( Int, Int )
+    | MouseMove ( Int, Int )
+    | MouseUp ( Int, Int )
 
 
 type Status
@@ -101,19 +101,20 @@ getTarget { elements, event } =
             case Array.get index elements of
                 Nothing ->
                     Nothing
-                    
+
                 Just element ->
-                    Just (index, element)
+                    Just ( index, element )
     in
     Maybe.andThen getElement event
 
 
 moveElement : ( Int, Int ) -> SelectEvent -> ( Int, Element ) -> ( Int, Element )
-moveElement ( x, y ) { index, dx, dy } (_, element) =
+moveElement ( x, y ) { index, dx, dy } ( _, element ) =
     ( index
-    , { element 
+    , { element
         | x = x - dx + element.x
-        , y = y - dy + element.y }
+        , y = y - dy + element.y
+      }
     )
 
 
@@ -124,48 +125,50 @@ update user msg model =
     in
     case msg of
         MouseAction mouseMsg ->
-            case (model.mode, mouseMsg) of
-                ( Shape, MouseUp (x, y) ) ->
+            case ( model.mode, mouseMsg ) of
+                ( Shape, MouseUp ( x, y ) ) ->
                     let
-                        findElement = 
+                        findElement =
                             Task.mapError Dom <| Browser.Dom.getElement "svg-document"
-                    
+
                         sendRequest { element } =
                             let
                                 size =
                                     50
-                                
-                                rect = Element.rect
+
+                                rect =
+                                    Element.rect
                             in
-                            Task.mapError Http
-                                <| Http.toTask 
-                                <| Request.Element.create token model.document
-                                    { rect
-                                    | x = x - (round element.x) - size // 2 
-                                    , y = y - (round element.y) - size // 2
-                                    , width = size
-                                    , height = size
-                                    }
+                            Task.mapError Http <|
+                                Http.toTask <|
+                                    Request.Element.create token
+                                        model.document
+                                        { rect
+                                            | x = x - round element.x - size // 2
+                                            , y = y - round element.y - size // 2
+                                            , width = size
+                                            , height = size
+                                        }
                     in
                     ( { model | status = Syncing }
-                    , Task.attempt ElementCreated 
-                        <| Task.andThen sendRequest findElement
+                    , Task.attempt ElementCreated <|
+                        Task.andThen sendRequest findElement
                     )
-        
-                ( Select, MouseDown index (x, y) ) ->
+
+                ( Select, MouseDown index ( x, y ) ) ->
                     ( { model
                         | dragging = True
                         , event = Just <| SelectEvent index x y
                       }
                     , Cmd.none
                     )
-        
-                ( Select, MouseMove (x, y) ) ->
+
+                ( Select, MouseMove ( x, y ) ) ->
                     if model.dragging then
                         case Maybe.map2 (moveElement ( x, y )) model.event <| getTarget model of
                             Nothing ->
                                 ( model, Cmd.none )
-        
+
                             Just ( index, element ) ->
                                 ( { model
                                     | event = Just <| SelectEvent index x y
@@ -173,18 +176,18 @@ update user msg model =
                                   }
                                 , Cmd.none
                                 )
-        
+
                     else
                         ( model, Cmd.none )
-        
+
                 ( Select, MouseUp _ ) ->
                     case getTarget model of
                         Nothing ->
                             ( { model | event = Nothing }
                             , Cmd.none
                             )
-        
-                        Just (index, element) ->
+
+                        Just ( index, element ) ->
                             ( { model
                                 | dragging = False
                                 , status = Syncing
@@ -192,7 +195,7 @@ update user msg model =
                             , Http.send ElementUpdated <|
                                 Request.Element.update token model.document element
                             )
-                            
+
                 ( _, _ ) ->
                     ( model, Cmd.none )
 
@@ -231,7 +234,7 @@ viewElement index element =
         baseAttributes =
             (++)
                 [ Svg.Attributes.class "cursor-pointer no-select"
-                , Events.Svg.onMouseDown <| MouseAction << (MouseDown index)
+                , Events.Svg.onMouseDown <| MouseAction << MouseDown index
                 ]
     in
     case element.elementType of
@@ -271,7 +274,7 @@ viewProperties model =
         Nothing ->
             Html.text "No element selected."
 
-        Just (index, element) ->
+        Just ( index, element ) ->
             let
                 baseFields =
                     (++)

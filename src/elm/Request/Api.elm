@@ -4,7 +4,8 @@ import Http
 import Json.Decode as Decode
 
 
-prefix = "https://ek512.benpaulhanna.com"
+prefix =
+    "https://ek512.benpaulhanna.com"
 
 
 queryString : List ( String, String ) -> String

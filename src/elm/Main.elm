@@ -62,11 +62,11 @@ type PageState
 
 
 routeRequest : UrlRequest -> Msg
-routeRequest urlRequest = 
+routeRequest urlRequest =
     case urlRequest of
         Browser.Internal url ->
             NavigateTo <| Route.parse url
-            
+
         Browser.External url ->
             NoOp
 
@@ -75,7 +75,7 @@ main : Program Flags Model Msg
 main =
     Browser.application
         { init = init
-        , onUrlChange = (RouteChange << Route.parse)
+        , onUrlChange = RouteChange << Route.parse
         , onUrlRequest = routeRequest
         , update = update
         , subscriptions = subscriptions
@@ -307,31 +307,31 @@ view model =
                     Editor.view subModel
                         |> Html.map EditorMsg
                         |> frame user
-        
+
                 ( Loaded (Home subModel), Just user ) ->
                     Home.view subModel
                         |> Html.map HomeMsg
                         |> frame user
-        
+
                 ( Loaded (LogIn subModel), Nothing ) ->
                     LogIn.view subModel
                         |> Html.map LogInMsg
-        
+
                 ( Loaded NotFound, Nothing ) ->
                     NotFound.view
-        
+
                 ( Loaded (ResetPassword subModel), Nothing ) ->
                     ResetPassword.view
                         |> Html.map ResetPasswordMsg
-        
+
                 ( Loaded (SignUp subModel), Nothing ) ->
                     SignUp.view subModel
                         |> Html.map SignUpMsg
-        
+
                 ( Loading, Just user ) ->
                     viewLoading
                         |> frame user
-        
+
                 _ ->
                     viewLoading
     in
