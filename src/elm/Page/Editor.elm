@@ -53,7 +53,6 @@ type Msg
     | MouseMove Int Int
     | MouseUp Int Int
     | SetMode Mode
-    | UpdateRadius Int (Maybe Int)
 
 
 type Status
@@ -103,26 +102,10 @@ getTarget { elements, event } =
 
 moveElement : ( Int, Int ) -> SelectEvent -> ( Int, Element ) -> ( Int, Element )
 moveElement ( x, y ) { index, dx, dy } (_, element) =
-    let
-        updateAttributes attributes =
-            { attributes
-                | x = x - dx + attributes.x
-                , y = y - dy + attributes.y
-            }
-
-        elementType =
-            case element.elementType of
-                Element.Circle attributes ->
-                    Element.Circle <| updateAttributes attributes
-
-                Element.Rect attributes ->
-                    Element.Rect <| updateAttributes attributes
-
-                Element.TextBox attributes ->
-                    Element.TextBox <| updateAttributes attributes
-    in
     ( index
-    , { element | elementType = elementType }
+    , { element 
+        | x = x - dx + element.x
+        , y = y - dy + element.y }
     )
 
 
@@ -138,13 +121,13 @@ update user msg model =
                     50
 
                 element =
-                    { elementType =
-                        Element.Rect
-                            { x = x - size // 2
-                            , y = y - size // 2
-                            , width = size
-                            , height = size
-                            }
+                    { elementType = Element.Rect
+                    , x = x - size // 2
+                    , y = y - size // 2
+                    , width = size
+                    , height = size
+                    , radius = 0
+                    , text = ""
                     }
             in
             ( { model | status = Syncing }
@@ -225,27 +208,6 @@ update user msg model =
             ( { model | mode = mode }
             , Cmd.none
             )
-            
-        ( _, UpdateRadius index (Just value) ) ->
-            case Array.get index model.elements of
-                Nothing ->
-                    ( model, Cmd.none )
-                    
-                Just element ->
-                    case element.elementType of
-                        Element.Circle attributes ->
-                            let
-                                newElement = 
-                                    { element 
-                                    | elementType = Element.Circle { attributes | radius = value }
-                                    }
-                            in
-                            ( { model | elements = Array.set index newElement model.elements }
-                            , Cmd.none
-                            )
-                            
-                        _ ->
-                            ( model, Cmd.none )
 
         ( _, _ ) ->
             ( model, Cmd.none )
@@ -261,35 +223,35 @@ viewElement index element =
                 ]
     in
     case element.elementType of
-        Element.Circle attributes ->
+        Element.Circle ->
             Svg.circle
                 (baseAttributes
-                    [ Svg.Attributes.cx <| String.fromInt attributes.x
-                    , Svg.Attributes.cy <| String.fromInt attributes.y
-                    , Svg.Attributes.r <| String.fromInt attributes.radius
+                    [ Svg.Attributes.cx <| String.fromInt element.x
+                    , Svg.Attributes.cy <| String.fromInt element.y
+                    , Svg.Attributes.r <| String.fromInt element.radius
                     ]
                 )
                 []
 
-        Element.Rect attributes ->
+        Element.Rect ->
             Svg.rect
                 (baseAttributes
-                    [ Svg.Attributes.x <| String.fromInt attributes.x
-                    , Svg.Attributes.y <| String.fromInt attributes.y
-                    , Svg.Attributes.width <| String.fromInt attributes.width
-                    , Svg.Attributes.height <| String.fromInt attributes.height
+                    [ Svg.Attributes.x <| String.fromInt element.x
+                    , Svg.Attributes.y <| String.fromInt element.y
+                    , Svg.Attributes.width <| String.fromInt element.width
+                    , Svg.Attributes.height <| String.fromInt element.height
                     ]
                 )
                 []
 
-        Element.TextBox attributes ->
+        Element.TextBox ->
             Svg.text_
                 (baseAttributes
-                    [ Svg.Attributes.x <| String.fromInt attributes.x
-                    , Svg.Attributes.y <| String.fromInt attributes.y
+                    [ Svg.Attributes.x <| String.fromInt element.x
+                    , Svg.Attributes.y <| String.fromInt element.y
                     ]
                 )
-                [ Svg.text attributes.text ]
+                [ Svg.text element.text ]
 
 
 viewProperties model =
@@ -299,53 +261,51 @@ viewProperties model =
 
         Just (index, element) ->
             let
-                baseFields attributes =
+                baseFields =
                     (++)
                         [ Elements.field
                             [ Elements.label [ Html.text "X" ]
                             , Elements.text
-                                [ Attributes.value <| String.fromInt attributes.x ]
+                                [ Attributes.value <| String.fromInt element.x ]
                             ]
                         , Elements.field
                             [ Elements.label [ Html.text "Y" ]
                             , Elements.text
-                                [ Attributes.value <| String.fromInt attributes.y ]
+                                [ Attributes.value <| String.fromInt element.y ]
                             ]
                         ]
 
                 fields =
                     case element.elementType of
-                        Element.Circle attributes ->
-                            baseFields attributes
+                        Element.Circle ->
+                            baseFields
                                 [ Elements.field
                                     [ Elements.label [ Html.text "Radius" ]
                                     , Elements.text
-                                        [ Attributes.value <| String.fromInt attributes.radius 
-                                        , Events.onInput (String.toInt >> (UpdateRadius index)) 
-                                        ]
+                                        [ Attributes.value <| String.fromInt element.radius ]
                                     ]
                                 ]
 
-                        Element.Rect attributes ->
-                            baseFields attributes
+                        Element.Rect ->
+                            baseFields
                                 [ Elements.field
                                     [ Elements.label [ Html.text "Width" ]
                                     , Elements.text
-                                        [ Attributes.value <| String.fromInt attributes.width ]
+                                        [ Attributes.value <| String.fromInt element.width ]
                                     ]
                                 , Elements.field
                                     [ Elements.label [ Html.text "Height" ]
                                     , Elements.text
-                                        [ Attributes.value <| String.fromInt attributes.height ]
+                                        [ Attributes.value <| String.fromInt element.height ]
                                     ]
                                 ]
 
-                        Element.TextBox attributes ->
-                            baseFields attributes
+                        Element.TextBox ->
+                            baseFields
                                 [ Elements.field
                                     [ Elements.label [ Html.text "Text" ]
                                     , Elements.text
-                                        [ Attributes.value attributes.text ]
+                                        [ Attributes.value element.text ]
                                     ]
                                 ]
             in
