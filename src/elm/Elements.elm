@@ -61,6 +61,7 @@ label =
 number =
     smallInput "number"
 
+
 password attributes =
     Html.input
         (attributes

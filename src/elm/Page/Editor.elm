@@ -66,7 +66,10 @@ type MouseMsg
 
 
 type Property
-    = Radius Int
+    = Height Int
+    | Radius Int
+    | TextContent String
+    | Width Int
 
 
 type Status
@@ -130,21 +133,32 @@ update user msg model =
             Maybe.map .token user
     in
     case msg of
-        ChangeProperty (Radius radius) ->
+        ChangeProperty property ->
             let
-                setElement (index, element) =
+                updateElement (index, element) =
                     let 
-                        newElement = { element | radius = radius }
+                        updated = 
+                            case property of
+                                Height value ->
+                                    { element | height = value }
+                                    
+                                Radius value ->
+                                    { element | radius = value }
+                                    
+                                TextContent value ->
+                                    { element | text = value }
+                                    
+                                Width value ->
+                                    { element | width = value }
                     in
-                    Array.set index newElement model.elements
-                    
+                    Array.set index updated model.elements
             in
-            case Maybe.map setElement <| getTarget model of
+            case Maybe.map updateElement <| getTarget model of
                 Nothing ->
                     (model, Cmd.none)
                     
                 Just elements ->
-                    ( { model | elements = Debug.log "els" elements }
+                    ( { model | elements = elements }
                     , Cmd.none
                     )
     
@@ -300,7 +314,7 @@ viewProperties model =
 
         Just ( index, element ) ->
             let
-                baseFields =
+                baseProperties =
                     (++)
                         [ Elements.field
                             [ Elements.label [ Html.text "X" ]
@@ -314,43 +328,46 @@ viewProperties model =
                             ]
                         ]
 
-                fields =
+                typeProperties =
                     case element.elementType of
                         Element.Circle ->
-                            baseFields
-                                [ Elements.field
-                                    [ Elements.label [ Html.text "Radius" ]
-                                    , Elements.number
-                                        [ Attributes.value <| String.fromInt element.radius 
-                                        , Events.Html.onInputInt <| ChangeProperty << Radius
-                                        ]
+                            [ Elements.field
+                                [ Elements.label [ Html.text "Radius" ]
+                                , Elements.number
+                                    [ Attributes.value <| String.fromInt element.radius 
+                                    , Events.Html.onInputInt <| ChangeProperty << Radius
                                     ]
                                 ]
+                            ]
 
                         Element.Rect ->
-                            baseFields
-                                [ Elements.field
-                                    [ Elements.label [ Html.text "Width" ]
-                                    , Elements.text
-                                        [ Attributes.value <| String.fromInt element.width ]
-                                    ]
-                                , Elements.field
-                                    [ Elements.label [ Html.text "Height" ]
-                                    , Elements.text
-                                        [ Attributes.value <| String.fromInt element.height ]
+                            [ Elements.field
+                                [ Elements.label [ Html.text "Width" ]
+                                , Elements.number
+                                    [ Attributes.value <| String.fromInt element.width
+                                    , Events.Html.onInputInt <| ChangeProperty << Width 
                                     ]
                                 ]
+                            , Elements.field
+                                [ Elements.label [ Html.text "Height" ]
+                                , Elements.number
+                                    [ Attributes.value <| String.fromInt element.height
+                                    , Events.Html.onInputInt <| ChangeProperty << Height
+                                    ]
+                                ]
+                            ]
 
                         Element.TextBox ->
-                            baseFields
-                                [ Elements.field
-                                    [ Elements.label [ Html.text "Text" ]
-                                    , Elements.text
-                                        [ Attributes.value element.text ]
+                            [ Elements.field
+                                [ Elements.label [ Html.text "Text" ]
+                                , Elements.text
+                                    [ Attributes.value element.text 
+                                    , Events.onInput <| ChangeProperty << TextContent 
                                     ]
                                 ]
+                            ]
             in
-            Html.div [] fields
+            Html.div [] <| baseProperties typeProperties
 
 
 viewStatus : Status -> Html Msg
