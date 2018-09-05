@@ -17,6 +17,7 @@ root documentId =
         ]
 
 
+create : Maybe String -> Document -> Element.Input -> Http.Request Element
 create token document element =
     let
         url =

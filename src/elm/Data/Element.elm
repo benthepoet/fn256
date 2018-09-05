@@ -1,4 +1,4 @@
-module Data.Element exposing (Element, ElementType(..), decoder, encoder)
+module Data.Element exposing (Element, ElementType(..), Input, circle, decoder, encoder, rect, textBox)
 
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -20,6 +20,41 @@ type alias Element =
     , radius : Int
     , text : String
     }
+    
+    
+type alias Input = 
+    { elementType : ElementType
+    , x : Int
+    , y : Int
+    , width : Int
+    , height : Int
+    , radius : Int
+    , text : String
+    }
+
+
+build : ElementType -> Input
+build elementType =
+    { elementType = elementType
+    , x = 0
+    , y = 0
+    , width = 0
+    , height = 0
+    , radius = 0
+    , text = ""
+    }
+    
+    
+circle : Input
+circle = build Circle
+
+
+rect : Input
+rect = build Rect
+
+
+textBox : Input
+textBox = build TextBox
 
 
 decodeElementType elementType =

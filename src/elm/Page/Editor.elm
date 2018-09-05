@@ -120,15 +120,7 @@ update user msg model =
                 size =
                     50
 
-                element =
-                    { elementType = Element.Rect
-                    , x = x - size // 2
-                    , y = y - size // 2
-                    , width = size
-                    , height = size
-                    , radius = 0
-                    , text = ""
-                    }
+                element = Element.rect
             in
             ( { model | status = Syncing }
             , Http.send ElementCreated <|
