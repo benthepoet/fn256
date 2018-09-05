@@ -7,9 +7,10 @@ import Svg.Events
 mousePositionEvent name x y msg =
     let
         decoder =
-            Decode.map2 msg
-                (Decode.field x Decode.int)
-                (Decode.field y Decode.int)
+            Decode.map msg <|
+                Decode.map2 (\a b -> (a, b))
+                    (Decode.field x Decode.int)
+                    (Decode.field y Decode.int)
     in
     Svg.Events.on name decoder
 

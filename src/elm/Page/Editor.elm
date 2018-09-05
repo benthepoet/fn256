@@ -49,9 +49,9 @@ type Msg
     = DocumentPosition ( Int, Int )
     | ElementCreated (Result Http.Error Element)
     | ElementUpdated (Result Http.Error Element)
-    | MouseDown Int Int Int
-    | MouseMove Int Int
-    | MouseUp Int Int
+    | MouseDown Int (Int, Int)
+    | MouseMove (Int, Int)
+    | MouseUp (Int, Int)
     | SetMode Mode
 
 
@@ -127,12 +127,12 @@ update user msg model =
                 Request.Element.create token model.document element
             )
 
-        ( Shape, MouseUp x y ) ->
+        ( Shape, MouseUp (x, y) ) ->
             ( model
             , Ports.getDocumentPosition ( x, y )
             )
 
-        ( Select, MouseDown index x y ) ->
+        ( Select, MouseDown index (x, y) ) ->
             ( { model
                 | dragging = True
                 , event = Just <| SelectEvent index x y
@@ -140,7 +140,7 @@ update user msg model =
             , Cmd.none
             )
 
-        ( Select, MouseMove x y ) ->
+        ( Select, MouseMove (x, y) ) ->
             if model.dragging then
                 case Maybe.map2 (moveElement ( x, y )) model.event <| getTarget model of
                     Nothing ->
@@ -157,7 +157,7 @@ update user msg model =
             else
                 ( model, Cmd.none )
 
-        ( Select, MouseUp _ _ ) ->
+        ( Select, MouseUp _ ) ->
             case getTarget model of
                 Nothing ->
                     ( { model | event = Nothing }
