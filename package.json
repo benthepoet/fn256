@@ -19,7 +19,7 @@
   },
   "homepage": "https://gitlab.com/benthepoet/fn256#README",
   "dependencies": {
-    "parcel-bundler": "github:benthepoet/parcel"
+    "parcel-bundler": "^1.10.0"
   },
   "devDependencies": {
     "cssnano": "^4.1.0",
