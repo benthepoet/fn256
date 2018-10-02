@@ -2,7 +2,6 @@
   "name": "fn256",
   "version": "1.0.0",
   "description": "The client application for EK512.",
-  "main": "index.js",
   "scripts": {
     "build": "graft build --entry=src/Main.elm --output=public/elm.js && npm run pack",
     "pack": "r.js -o build.js && v=$(date +%s); sed -i -r \"s\/\\\"(\\\/\\w+)(.css|.js)\\\"\/\\\"\\1\\2?v=$v\\\"\/g\" dist/index.html",
