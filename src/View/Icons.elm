@@ -20,44 +20,44 @@ fas =
 
 
 barcode =
-    fas [ "fa-barcode" ]
+    root [ "icon-barcode" ]
 
 
 check =
-    fas [ "fa-check-circle" ]
+    root [ "icon-checkbox-checked" ]
 
 
 file =
-    fas [ "fa-file-alt" ]
+    root [ "icon-file-text" ]
 
 
 font =
-    fas [ "fa-font" ]
+    root [ "icon-font1" ]
 
 
 lock =
-    fas [ "fa-lock" ]
+    root [ "icon-key" ]
 
 
 mail =
-    fas [ "fa-envelope" ]
+    root [ "icon-envelop" ]
 
 
 pointer =
-    fas [ "fa-mouse-pointer" ]
+    root [ "icon-mouse-pointer" ]
 
 
 search =
-    fas [ "fa-search" ]
+    root [ "icon-search" ]
 
 
 spinner =
-    fas [ "fa-spinner", "fa-pulse" ]
+    root [ "icon-spinner2" ]
 
 
 square =
-    far [ "fa-square" ]
+    root [ "icon-checkbox-unchecked" ]
 
 
 warning =
-    fas [ "fa-exclamation-triangle" ]
+    root [ "icon-exclamation-triangle" ]

@@ -1,4 +1,5 @@
 require.config({
+  baseUrl: '/',
   shim: {
     elm: {
       exports: 'Elm'
