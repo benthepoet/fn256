@@ -257,6 +257,14 @@ frame user pageView =
                         [ Attributes.class "subtitle is-4 has-text-white" ]
                         [ Html.text "FN256" ]
                     ]
+                , Html.a
+                    [ Attributes.class "navbar-burger"
+                    , Attributes.attribute "role" "button"
+                    ]
+                    [ Html.span [] []
+                    , Html.span [] []
+                    , Html.span [] []
+                    ]
                 ]
             , Html.div
                 [ Attributes.class "navbar-menu" ]
@@ -268,21 +276,21 @@ frame user pageView =
                         ]
                         [ Html.text "Home" ]
                     ]
-                ]
-            , Html.div
-                [ Attributes.class "navbar-end" ]
-                [ Html.div
-                    [ Attributes.class "navbar-item has-dropdown is-hoverable" ]
-                    [ Html.a
-                        [ Attributes.class "navbar-link" ]
-                        [ Html.text user.email ]
-                    , Html.div
-                        [ Attributes.class "navbar-dropdown" ]
+                , Html.div
+                    [ Attributes.class "navbar-end" ]
+                    [ Html.div
+                        [ Attributes.class "navbar-item has-dropdown is-hoverable" ]
                         [ Html.a
-                            [ Attributes.class "navbar-item"
-                            , Events.onClick LogOut
+                            [ Attributes.class "navbar-link" ]
+                            [ Html.text user.email ]
+                        , Html.div
+                            [ Attributes.class "navbar-dropdown" ]
+                            [ Html.a
+                                [ Attributes.class "navbar-item"
+                                , Events.onClick LogOut
+                                ]
+                                [ Html.text "Log Out" ]
                             ]
-                            [ Html.text "Log Out" ]
                         ]
                     ]
                 ]
