@@ -12,6 +12,7 @@ import Html.Attributes as Attributes
 import Html.Events as Events
 import Http
 import Json.Decode as Decode
+import Page.Editor.Properties as Properties
 import Request.Document
 import Request.Element
 import Svg exposing (Svg)
@@ -325,76 +326,30 @@ viewProperties model =
 
         Just ( index, element ) ->
             let
-                baseProperties =
-                    (++)
-                        [ Elements.field
-                            [ Elements.label [ Html.text "X" ]
-                            , Elements.text
-                                [ Attributes.value <| String.fromInt element.x ]
-                            ]
-                        , Elements.field
-                            [ Elements.label [ Html.text "Y" ]
-                            , Elements.text
-                                [ Attributes.value <| String.fromInt element.y ]
-                            ]
-                        ]
-
-                typeProperties =
+                properties =
                     case element.elementType of
                         Element.Circle ->
-                            [ Elements.field
-                                [ Elements.label [ Html.text "Radius" ]
-                                , Elements.number
-                                    [ Attributes.value <| String.fromInt element.radius 
-                                    , Events.Html.onInputInt <| ChangeProperty << Radius
-                                    ]
-                                ]
-                            , Elements.field
-                                [ Elements.label [ Html.text "Stroke Width" ]
-                                , Elements.number
-                                    [ Attributes.value <| String.fromInt element.strokeWidth
-                                    , Attributes.min "0"
-                                    , Events.Html.onInputInt <| ChangeProperty << StrokeWidth
-                                    ]
-                                ]
+                            [ Properties.x element
+                            , Properties.y element
+                            , Properties.radius element <| ChangeProperty << Radius
+                            , Properties.strokeWidth element <| ChangeProperty << StrokeWidth
                             ]
 
                         Element.Rect ->
-                            [ Elements.field
-                                [ Elements.label [ Html.text "Width" ]
-                                , Elements.number
-                                    [ Attributes.value <| String.fromInt element.width
-                                    , Events.Html.onInputInt <| ChangeProperty << Width 
-                                    ]
-                                ]
-                            , Elements.field
-                                [ Elements.label [ Html.text "Height" ]
-                                , Elements.number
-                                    [ Attributes.value <| String.fromInt element.height
-                                    , Events.Html.onInputInt <| ChangeProperty << Height
-                                    ]
-                                ]
-                            , Elements.field
-                                [ Elements.label [ Html.text "Stroke Width" ]
-                                , Elements.number
-                                    [ Attributes.value <| String.fromInt element.strokeWidth
-                                    , Attributes.min "0"
-                                    , Events.Html.onInputInt <| ChangeProperty << StrokeWidth
-                                    ]
-                                ]
+                            [ Properties.x element
+                            , Properties.y element
+                            , Properties.width element <| ChangeProperty << Width
+                            , Properties.height element <| ChangeProperty << Height
+                            , Properties.strokeWidth element <| ChangeProperty << StrokeWidth
                             ]
 
                         Element.TextBox ->
-                            [ Elements.field
-                                [ Elements.label [ Html.text "Text" ]
-                                , Elements.text
-                                    [ Attributes.value element.text 
-                                    , Events.onInput <| ChangeProperty << TextContent 
-                                    ]
-                                ]
+                            [ Properties.x element
+                            , Properties.y element
+                            , Properties.text element <| ChangeProperty << TextContent
                             ]
             in
-            Html.div [] <| baseProperties typeProperties
+            Html.div [] properties
 
 
 viewStatus : Status -> Html Msg
