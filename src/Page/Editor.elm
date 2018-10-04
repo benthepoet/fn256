@@ -277,7 +277,6 @@ viewElement index element =
         baseAttributes =
             (++)
                 [ Svg.Attributes.class "cursor-pointer no-select"
-                , Svg.Attributes.stroke "black"
                 , Events.Svg.onMouseDown <| MouseAction << MouseDown index
                 ]
     in
@@ -289,6 +288,7 @@ viewElement index element =
                     , Svg.Attributes.cy <| String.fromInt element.y
                     , Svg.Attributes.r <| String.fromInt element.radius
                     , Svg.Attributes.fillOpacity "0"
+                    , Svg.Attributes.stroke "black"
                     , Svg.Attributes.strokeWidth <| String.fromInt element.strokeWidth
                     ]
                 )
@@ -302,6 +302,7 @@ viewElement index element =
                     , Svg.Attributes.width <| String.fromInt element.width
                     , Svg.Attributes.height <| String.fromInt element.height
                     , Svg.Attributes.fillOpacity "0"
+                    , Svg.Attributes.stroke "black"
                     , Svg.Attributes.strokeWidth <| String.fromInt element.strokeWidth
                     ]
                 )
