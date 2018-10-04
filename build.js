@@ -1,8 +1,8 @@
 ({
   appDir: 'public',
-  baseUrl: './',
+  baseUrl: './js',
   dir: 'dist',
-  mainConfigFile: 'public/main.js',
+  mainConfigFile: 'public/js/main.js',
   optimizeCss: 'standard',
   removeCombined: true,
   skipDirOptimize: true,

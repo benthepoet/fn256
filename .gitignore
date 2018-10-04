@@ -1,4 +1,4 @@
 dist/
 elm-stuff/
 node_modules/
-public/elm.js
+public/js/elm.js
