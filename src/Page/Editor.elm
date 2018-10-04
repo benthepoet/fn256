@@ -68,6 +68,7 @@ type MouseMsg
 type Property
     = Height Int
     | Radius Int
+    | StrokeWidth Int
     | TextContent String
     | Width Int
 
@@ -145,6 +146,9 @@ update user msg model =
                                 Radius value ->
                                     { element | radius = value }
                                     
+                                StrokeWidth value ->
+                                    { element | strokeWidth = value }
+                                    
                                 TextContent value ->
                                     { element | text = value }
                                     
@@ -186,6 +190,7 @@ update user msg model =
                                             , y = y - round element.y - size // 2
                                             , width = size
                                             , height = size
+                                            , strokeWidth = 1
                                         }
                     in
                     ( { model | status = Syncing }
@@ -272,6 +277,7 @@ viewElement index element =
         baseAttributes =
             (++)
                 [ Svg.Attributes.class "cursor-pointer no-select"
+                , Svg.Attributes.stroke "black"
                 , Events.Svg.onMouseDown <| MouseAction << MouseDown index
                 ]
     in
@@ -282,6 +288,8 @@ viewElement index element =
                     [ Svg.Attributes.cx <| String.fromInt element.x
                     , Svg.Attributes.cy <| String.fromInt element.y
                     , Svg.Attributes.r <| String.fromInt element.radius
+                    , Svg.Attributes.fillOpacity "0"
+                    , Svg.Attributes.strokeWidth <| String.fromInt element.strokeWidth
                     ]
                 )
                 []
@@ -293,6 +301,8 @@ viewElement index element =
                     , Svg.Attributes.y <| String.fromInt element.y
                     , Svg.Attributes.width <| String.fromInt element.width
                     , Svg.Attributes.height <| String.fromInt element.height
+                    , Svg.Attributes.fillOpacity "0"
+                    , Svg.Attributes.strokeWidth <| String.fromInt element.strokeWidth
                     ]
                 )
                 []
@@ -338,6 +348,14 @@ viewProperties model =
                                     , Events.Html.onInputInt <| ChangeProperty << Radius
                                     ]
                                 ]
+                            , Elements.field
+                                [ Elements.label [ Html.text "Stroke Width" ]
+                                , Elements.number
+                                    [ Attributes.value <| String.fromInt element.strokeWidth
+                                    , Attributes.min "0"
+                                    , Events.Html.onInputInt <| ChangeProperty << StrokeWidth
+                                    ]
+                                ]
                             ]
 
                         Element.Rect ->
@@ -353,6 +371,14 @@ viewProperties model =
                                 , Elements.number
                                     [ Attributes.value <| String.fromInt element.height
                                     , Events.Html.onInputInt <| ChangeProperty << Height
+                                    ]
+                                ]
+                            , Elements.field
+                                [ Elements.label [ Html.text "Stroke Width" ]
+                                , Elements.number
+                                    [ Attributes.value <| String.fromInt element.strokeWidth
+                                    , Attributes.min "0"
+                                    , Events.Html.onInputInt <| ChangeProperty << StrokeWidth
                                     ]
                                 ]
                             ]

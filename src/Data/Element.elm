@@ -19,6 +19,7 @@ type alias Element =
     , height : Int
     , radius : Int
     , text : String
+    , strokeWidth : Int
     }
 
 
@@ -30,6 +31,7 @@ type alias Input =
     , height : Int
     , radius : Int
     , text : String
+    , strokeWidth : Int
     }
 
 
@@ -42,6 +44,7 @@ build elementType =
     , height = 0
     , radius = 0
     , text = ""
+    , strokeWidth = 0
     }
 
 
@@ -76,15 +79,21 @@ decodeElementType elementType =
 
 
 decoder =
-    Decode.map8 Element
-        (Decode.field "id" Decode.int)
-        (Decode.field "element_type" Decode.int |> Decode.andThen decodeElementType)
-        (Decode.field "x" Decode.int)
-        (Decode.field "y" Decode.int)
-        (Decode.field "width" Decode.int)
-        (Decode.field "height" Decode.int)
-        (Decode.field "radius" Decode.int)
-        (Decode.field "text" Decode.string)
+    let
+        mainFields =
+            Decode.map8 Element
+                (Decode.field "id" Decode.int)
+                (Decode.field "element_type" Decode.int |> Decode.andThen decodeElementType)
+                (Decode.field "x" Decode.int)
+                (Decode.field "y" Decode.int)
+                (Decode.field "width" Decode.int)
+                (Decode.field "height" Decode.int)
+                (Decode.field "radius" Decode.int)
+                (Decode.field "text" Decode.string)
+    in
+    Decode.map2 (<|)
+        mainFields
+        (Decode.field "stroke_width" Decode.int)
 
 
 encodeElementType elementType =
@@ -108,4 +117,5 @@ encoder element =
         , ( "height", Encode.int element.height )
         , ( "radius", Encode.int element.radius )
         , ( "text", Encode.string element.text )
+        , ( "stroke_width", Encode.int element.strokeWidth )
         ]
