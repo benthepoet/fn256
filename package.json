@@ -4,7 +4,7 @@
   "description": "The client application for EK512.",
   "scripts": {
     "build": "graft build --entry=src/Main.elm --output=public/js/elm.js && npm run pack",
-    "pack": "r.js -o build.js && v=$(date +%s); sed -i -r \"s\/\\\"(\\\/.+)(.css|.js)\\\"\/\\\"\\1\\2?v=$v\\\"\/g\" dist/index.html",
+    "pack": "r.js -o build.js && v=$(date +%s); sed -i -r \"s/\\\"(\\/.+)(.css|.js)\\\"/\\\"\\1\\2?v=$v\\\"/g\" dist/index.html",
     "start": "graft serve --root=public --port=8080 --entry=src/Main.elm --output=public/js/elm.js"
   },
   "repository": {
@@ -19,6 +19,7 @@
   },
   "homepage": "https://gitlab.com/benthepoet/fn256#README",
   "dependencies": {
+    "bulma": "^0.7.1",
     "graft": "github:benthepoet/graft",
     "requirejs": "^2.3.6"
   }
