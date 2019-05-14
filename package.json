@@ -19,7 +19,6 @@
   },
   "homepage": "https://gitlab.com/benthepoet/fn256#README",
   "dependencies": {
-    "bulma": "^0.7.1",
     "graft": "github:benthepoet/graft",
     "requirejs": "^2.3.6"
   }
